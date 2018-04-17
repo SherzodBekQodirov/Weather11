@@ -68,7 +68,11 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
-                JSONObject jSOn
+                JSONObject jSOn = new JSONObject(json.toString());
+
+
+
+
                 connection.disconnect();
                 Log.d(LOG_TAG, "Disconnect");
 
