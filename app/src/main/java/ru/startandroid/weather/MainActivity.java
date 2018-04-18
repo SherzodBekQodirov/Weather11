@@ -1,7 +1,6 @@
 package ru.startandroid.weather;
 
 import android.content.ContentValues;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -17,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -100,9 +100,28 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, (String) weather.get("description"));
 
 
+                final String icond = weather.getString("icon");
+                Log.d(LOG_TAG, weather.getString("icon"));
+
+
+                final String iconUrls = "http://openweathermap.org/img/w/" + icond + ".png";
+                URL url1 = new URL(iconUrls);
+                InputStream is = (InputStream) url1.getContent();
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    output.write(buffer, 0, bytesRead);
+
+                }
+
+
+                Log.d(LOG_TAG, (String) weather.get("icon"));
+
+
                 connection.disconnect();
                 Log.d(LOG_TAG, "Disconnect");
-                //Ui uchun alohida patok
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -118,63 +137,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
     });
-    // iconka uchun alohida patok
-    Thread thread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                URL urlicon = new URL(String.format("http://api.openweathermap.org/data/2.5/forecast?id=1512440&APPID=" +
-                        "a7dc109561ec63ddd24cd4df691e3043"));
-                HttpURLConnection connection =
-                        (HttpURLConnection) urlicon.openConnection();
-                Log.d(LOG_TAG, "Conection icon is open");
-
-                connection.addRequestProperty("a7dc109561ec63ddd24cd4df691e3043",
-                        getString(R.string.open_weather_maps_app_id));
-                Log.d(LOG_TAG, "RequestProperty icon");
-
-                BufferedReader readericon = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream()));
-
-                StringBuffer jsonicon = new StringBuffer(1024);
-                String tmp = "";
-                while ((tmp = readericon.readLine()) != null)
-                    jsonicon.append(tmp).append("\n");
-                readericon.close();
-                Log.d(LOG_TAG, jsonicon.toString());
-                JSONObject data = new JSONObject(jsonicon.toString());
-                if (data.getInt("cod") != 200) {
-                    Log.d(LOG_TAG, "Returned null");
-
-
-                }
-                JSONArray list = data.getJSONArray("list");
-                JSONObject firstItemoftheArray = list.getJSONObject(0);
-                JSONObject main = firstItemoftheArray.getJSONObject("main");
-                JSONObject weather = firstItemoftheArray.getJSONArray("weather").getJSONObject(0);
-
-                final String icond = weather.getString("icon");
-                Log.d(LOG_TAG, weather.getString("icon"));
-                final String iconUrls = "http://openweathermap.org/img/w/" + icond + ".png";
-                URL url1 = new URL(iconUrls);
-                InputStream is = (InputStream) url1.getContent();
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                while ((bytesRead = is.read(buffer)) != -1) {
-                    output.write(buffer, 0, bytesRead);
-                    //Shu yerdan davom ettirishvoring
-                }
-
-
-                connection.disconnect();
-                Log.d(LOG_TAG, "Disconnect Icon");
-
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Exeption", e);
-            }
-
-        }
-
-    });
 }
+
