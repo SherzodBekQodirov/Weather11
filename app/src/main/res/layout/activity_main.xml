@@ -15,18 +15,19 @@
         android:layout_marginStart="224dp"
         android:layout_marginTop="24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="224dp" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="177dp"
         android:layout_height="54dp"
-        android:layout_marginStart="116dp"
-        android:layout_marginTop="372dp"
+        android:layout_marginStart="104dp"
+        android:layout_marginTop="432dp"
         android:text="Обновить"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginLeft="116dp" />
+        android:layout_marginLeft="104dp" />
 
     <TextView
         android:id="@+id/textView2"

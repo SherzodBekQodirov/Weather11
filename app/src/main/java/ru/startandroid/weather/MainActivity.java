@@ -1,12 +1,16 @@
 package ru.startandroid.weather;
 
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -14,11 +18,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import javax.xml.transform.Result;
 
 public class MainActivity extends AppCompatActivity {
     Button btn;
-    TextView textView;
+    TextView textView, textView2;
+    ImageView imgview;
     final String LOG_TAG = "myLogs";
 
     @Override
@@ -27,6 +31,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btn = (Button) findViewById(R.id.button);
         textView = (TextView) findViewById(R.id.textView);
+        textView2 = (TextView) findViewById(R.id.textView2);
+        imgview = (ImageView) findViewById(R.id.imageView);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -39,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     Thread t = new Thread(new Runnable() {
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @Override
         public void run() {
             Log.d(LOG_TAG, "Thread is run!");
@@ -68,7 +75,34 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
-                JSONObject jSOn = new JSONObject(json.toString());
+                JSONArray list = data.getJSONArray("list");
+                JSONObject firstItemoftheArray = list.getJSONObject(0);
+                JSONObject main = firstItemoftheArray.getJSONObject("main");
+
+                double temp = main.getDouble("temp");
+                String temp2 = String.valueOf(temp);
+                textView.setText(temp2);
+
+                JSONObject weather = firstItemoftheArray.getJSONArray("weather").getJSONObject(0);
+
+
+                String mainString = weather.getString("main");
+//                textView.setText(getString((Integer) weather.get(String.valueOf(main))));
+                Log.d(LOG_TAG, (String) weather.get("main"));
+
+
+                String desc= weather.getString("description");
+                Log.d(LOG_TAG, (String) weather.get("description"));
+                textView2.setText(desc);
+
+
+                String icond= weather.getString("icon");
+
+
+//                String iconUrl = "http://openweathermap.org/img/w/" + icond + ".png";
+
+
+                Log.d(LOG_TAG, (String) weather.get("icon"));
 
 
 
@@ -80,7 +114,13 @@ public class MainActivity extends AppCompatActivity {
             }catch(Exception e){
                 Log.e(LOG_TAG, "Exeption", e);
             }
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
 
+
+                }
+            });
         }
         });
     }
