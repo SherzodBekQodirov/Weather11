@@ -1,6 +1,9 @@
 package ru.startandroid.weather;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
@@ -103,17 +106,22 @@ public class MainActivity extends AppCompatActivity {
                 final String icond = weather.getString("icon");
                 Log.d(LOG_TAG, weather.getString("icon"));
 
-
                 final String iconUrls = "http://openweathermap.org/img/w/" + icond + ".png";
-                URL url1 = new URL(iconUrls);
-                InputStream is = (InputStream) url1.getContent();
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                while ((bytesRead = is.read(buffer)) != -1) {
-                    output.write(buffer, 0, bytesRead);
 
-                }
+
+                    URL url1 = new URL(iconUrls);
+                    InputStream is = (InputStream) url1.getContent();
+                    byte[] buffer = new byte[8192];
+                    int bytesRead;
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    while ((bytesRead = is.read(buffer)) != -1) {
+                        output.write(buffer, 0, bytesRead);
+                        byte[] bytes = imageByter(this, iconUrls);
+                        Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                        imgview.setImageBitmap(bm);
+
+
+                    }
 
 
                 Log.d(LOG_TAG, (String) weather.get("icon"));
@@ -127,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         textView.setText(tempC);
                         textView2.setText(desc);
+
                     }
                 });
 
