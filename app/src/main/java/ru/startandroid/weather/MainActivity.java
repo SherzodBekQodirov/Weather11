@@ -79,21 +79,20 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject firstItemoftheArray = list.getJSONObject(0);
                 JSONObject main = firstItemoftheArray.getJSONObject("main");
 
-                double temp = main.getDouble("temp");
-                String temp2 = String.valueOf(temp);
-                textView.setText(temp2);
-
+                final double temp = main.getDouble("temp");
+                final String temp2 = String.valueOf(temp);
+                Double tempD = Double.parseDouble(temp2);
+                final int tempI = (int) ((tempD-32)*5/9);
+                final String tempC = Integer.toString(tempI)+"c";
                 JSONObject weather = firstItemoftheArray.getJSONArray("weather").getJSONObject(0);
 
 
                 String mainString = weather.getString("main");
-//                textView.setText(getString((Integer) weather.get(String.valueOf(main))));
                 Log.d(LOG_TAG, (String) weather.get("main"));
 
 
-                String desc= weather.getString("description");
+                final String desc= weather.getString("description");
                 Log.d(LOG_TAG, (String) weather.get("description"));
-                textView2.setText(desc);
 
 
                 String icond= weather.getString("icon");
@@ -110,18 +109,20 @@ public class MainActivity extends AppCompatActivity {
                 connection.disconnect();
                 Log.d(LOG_TAG, "Disconnect");
 
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        textView.setText(tempC);
+                        textView2.setText(desc);
+                    }
+                });
 
             }catch(Exception e){
                 Log.e(LOG_TAG, "Exeption", e);
             }
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
 
-
-                }
-            });
         }
+
         });
     }
 
