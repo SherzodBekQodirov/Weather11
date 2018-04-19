@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
         private byte[] imageByter (Context context, String url){
-            URL url1 = new URL(iconUrls);
+            URL url1 = new URL(url);
             InputStream is = (InputStream) url1.getContent();
             byte[] buffer = new byte[8192];
             int bytesRead;
@@ -134,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             while ((bytesRead = is.read(buffer)) != -1) {
                 output.write(buffer, 0, bytesRead);
             }
+            return output.toByteArray();
         }
 
     });
