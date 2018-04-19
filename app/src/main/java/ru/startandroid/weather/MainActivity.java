@@ -1,11 +1,7 @@
 package ru.startandroid.weather;
-
 import android.annotation.TargetApi;
-import android.content.ContentValues;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -15,12 +11,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +21,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
-
 public class MainActivity extends AppCompatActivity {
     Button btn;
     TextView textView, textView2, textView3;
@@ -56,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     Thread t = new Thread(new Runnable() {
         @TargetApi(Build.VERSION_CODES.KITKAT)
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -91,13 +81,8 @@ public class MainActivity extends AppCompatActivity {
                 JSONArray list = data.getJSONArray("list");
                 JSONObject firstItemoftheArray = list.getJSONObject(0);
                 JSONObject main = firstItemoftheArray.getJSONObject("main");
-
-//                JSONArray jarray = new JSONArray(data.getJSONArray("city"));
-//                JSONObject jobject = jarray.getJSONObject(0);
-//                JSONObject city = jobject.getJSONObject("name");
-//                Log.d(LOG_TAG, String.valueOf(city));
-
-
+                JSONObject city = data.getJSONObject("city");
+                final String name = city.getString("name");
                 final double temp = main.getDouble("temp");
                 final String temp2 = String.valueOf(temp);
                 Double tempD = Double.parseDouble(temp2);
@@ -108,23 +93,20 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, (String) weather.get("main"));
                 final String desc = weather.getString("description");
                 Log.d(LOG_TAG, (String) weather.get("description"));
-
                 final String icond = weather.getString("icon");
                 Log.d(LOG_TAG, weather.getString("icon"));
-
                 final String iconUrls = "http://openweathermap.org/img/w/" + icond + ".png";
-
                 Log.d(LOG_TAG, (String) weather.get("icon"));
                 connection.disconnect();
                 Log.d(LOG_TAG, "Disconnect");
                 byte[] bytes = imageByter(this, iconUrls);
                 final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         textView.setText(tempC);
                         textView2.setText(desc);
+                        textView3.setText(name);
                         imgview.setImageBitmap(bm);
                     }
                 });
@@ -132,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Exeption", e);
             }
-
         }
         private byte[] imageByter (Runnable context, String url){
             URL url1 = null;
@@ -159,7 +140,5 @@ public class MainActivity extends AppCompatActivity {
             }
             return output.toByteArray();
         }
-
     });
 }
-
