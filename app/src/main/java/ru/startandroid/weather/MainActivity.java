@@ -32,11 +32,14 @@ public class MainActivity extends AppCompatActivity {
     TextView textView, textView2;
     ImageView imgview;
     final String LOG_TAG = "myLogs";
+    String OPEN_WEATHER_MAP_API =
+            "http://api.openweathermap.org/data/2.5/forecast?id=1512440&APPID=a7dc109561ec63ddd24cd4df691e3043";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         btn = (Button) findViewById(R.id.button);
         textView = (TextView) findViewById(R.id.textView);
         textView2 = (TextView) findViewById(R.id.textView2);
@@ -48,8 +51,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "T is started");
             }
         });
-        String OPEN_WEATHER_MAP_API =
-                "http://api.openweathermap.org/data/2.5/forecast?id=1512440&APPID=a7dc109561ec63ddd24cd4df691e3043";
     }
 
     Thread t = new Thread(new Runnable() {
@@ -109,33 +110,27 @@ public class MainActivity extends AppCompatActivity {
                 final String iconUrls = "http://openweathermap.org/img/w/" + icond + ".png";
 
 
-                    URL url1 = new URL(iconUrls);
-                    InputStream is = (InputStream) url1.getContent();
-                    byte[] buffer = new byte[8192];
-                    int bytesRead;
-                    ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    while ((bytesRead = is.read(buffer)) != -1) {
-                        output.write(buffer, 0, bytesRead);
-                        byte[] bytes = imageByter(this, iconUrls);
-                        Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                        imgview.setImageBitmap(bm);
-
-
-                    }
-
-
+//                URL url1 = new URL(iconUrls);
+//                InputStream is = (InputStream) url1.getContent();
+//                byte[] buffer = new byte[8192];
+//                int bytesRead;
+//                ByteArrayOutputStream output = new ByteArrayOutputStream();
+//                while ((bytesRead = is.read(buffer)) != -1) {
+//                    output.write(buffer, 0, bytesRead);
+//                }
                 Log.d(LOG_TAG, (String) weather.get("icon"));
-
-
                 connection.disconnect();
                 Log.d(LOG_TAG, "Disconnect");
+                byte[] bytes = imageByter(this, iconUrls);
+                final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
 
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         textView.setText(tempC);
                         textView2.setText(desc);
-
+                        imgview.setImageBitmap(bm);
                     }
                 });
 
@@ -143,6 +138,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(LOG_TAG, "Exeption", e);
             }
 
+        }
+        protected byte[] imageByter (this, iconUrl){
+            URL url1 = new URL(iconUrls);
+            InputStream is = (InputStream) url1.getContent();
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            while ((bytesRead = is.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
         }
 
     });
