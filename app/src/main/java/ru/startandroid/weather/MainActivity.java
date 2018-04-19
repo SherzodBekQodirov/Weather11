@@ -69,20 +69,19 @@ public class MainActivity extends AppCompatActivity {
                         getString(R.string.open_weather_maps_app_id));
                 Log.d(LOG_TAG, "RequestProperty");
 
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(connection.getInputStream()));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 
                 StringBuffer json = new StringBuffer(1024);
                 String tmp = "";
-                while ((tmp = reader.readLine()) != null)
+                while ((tmp = reader.readLine()) != null) {
                     json.append(tmp).append("\n");
+                }
                 reader.close();
                 Log.d(LOG_TAG, json.toString());
                 JSONObject data = new JSONObject(json.toString());
                 if (data.getInt("cod") != 200) {
                     Log.d(LOG_TAG, "Returned null");
-
-
+                    return;
                 }
                 JSONArray list = data.getJSONArray("list");
                 JSONObject firstItemoftheArray = list.getJSONObject(0);
@@ -95,35 +94,22 @@ public class MainActivity extends AppCompatActivity {
                 final String tempC = Integer.toString(tempI) + "c";
                 JSONObject weather = firstItemoftheArray.getJSONArray("weather").getJSONObject(0);
 
-
                 String mainString = weather.getString("main");
                 Log.d(LOG_TAG, (String) weather.get("main"));
 
-
                 final String desc = weather.getString("description");
                 Log.d(LOG_TAG, (String) weather.get("description"));
-
 
                 final String icond = weather.getString("icon");
                 Log.d(LOG_TAG, weather.getString("icon"));
 
                 final String iconUrls = "http://openweathermap.org/img/w/" + icond + ".png";
 
-
-//                URL url1 = new URL(iconUrls);
-//                InputStream is = (InputStream) url1.getContent();
-//                byte[] buffer = new byte[8192];
-//                int bytesRead;
-//                ByteArrayOutputStream output = new ByteArrayOutputStream();
-//                while ((bytesRead = is.read(buffer)) != -1) {
-//                    output.write(buffer, 0, bytesRead);
-//                }
                 Log.d(LOG_TAG, (String) weather.get("icon"));
                 connection.disconnect();
                 Log.d(LOG_TAG, "Disconnect");
                 byte[] bytes = imageByter(this, iconUrls);
                 final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-
 
                 runOnUiThread(new Runnable() {
                     @Override
@@ -139,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-        protected byte[] imageByter (this, iconUrl){
+        private byte[] imageByter (Context context, String url){
             URL url1 = new URL(iconUrls);
             InputStream is = (InputStream) url1.getContent();
             byte[] buffer = new byte[8192];
