@@ -1,5 +1,6 @@
 package ru.startandroid.weather;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -21,15 +22,17 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 
 public class MainActivity extends AppCompatActivity {
     Button btn;
-    TextView textView, textView2;
+    TextView textView, textView2, textView3;
     ImageView imgview;
     final String LOG_TAG = "myLogs";
     String OPEN_WEATHER_MAP_API =
@@ -43,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         btn = (Button) findViewById(R.id.button);
         textView = (TextView) findViewById(R.id.textView);
         textView2 = (TextView) findViewById(R.id.textView2);
+        textView3 = (TextView) findViewById(R.id.textView3);
         imgview = (ImageView) findViewById(R.id.imageView);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     Thread t = new Thread(new Runnable() {
+        @TargetApi(Build.VERSION_CODES.KITKAT)
         @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @Override
         public void run() {
@@ -87,16 +92,20 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject firstItemoftheArray = list.getJSONObject(0);
                 JSONObject main = firstItemoftheArray.getJSONObject("main");
 
+//                JSONArray jarray = new JSONArray(data.getJSONArray("city"));
+//                JSONObject jobject = jarray.getJSONObject(0);
+//                JSONObject city = jobject.getJSONObject("name");
+//                Log.d(LOG_TAG, String.valueOf(city));
+
+
                 final double temp = main.getDouble("temp");
                 final String temp2 = String.valueOf(temp);
                 Double tempD = Double.parseDouble(temp2);
-                final int tempI = (int) ((tempD - 32) * 5 / 9);
-                final String tempC = Integer.toString(tempI) + "c";
+                final int tempI = (int) (tempD - 273.15);
+                final String tempC = Integer.toString(tempI) + "°c";
                 JSONObject weather = firstItemoftheArray.getJSONArray("weather").getJSONObject(0);
-
                 String mainString = weather.getString("main");
                 Log.d(LOG_TAG, (String) weather.get("main"));
-
                 final String desc = weather.getString("description");
                 Log.d(LOG_TAG, (String) weather.get("description"));
 
@@ -125,14 +134,28 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-        private byte[] imageByter (Context context, String url){
-            URL url1 = new URL(url);
-            InputStream is = (InputStream) url1.getContent();
+        private byte[] imageByter (Runnable context, String url){
+            URL url1 = null;
+            try {
+                url1 = new URL(url);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            InputStream is = null;
+            try {
+                is = (InputStream) url1.getContent();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             byte[] buffer = new byte[8192];
             int bytesRead;
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            while ((bytesRead = is.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
+            try {
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    output.write(buffer, 0, bytesRead);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return output.toByteArray();
         }
