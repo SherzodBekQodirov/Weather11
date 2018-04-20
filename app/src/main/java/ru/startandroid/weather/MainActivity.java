@@ -1,7 +1,6 @@
 package ru.startandroid.weather;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -14,13 +13,10 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import ru.startandroid.weather.ImageByter;
 public class MainActivity extends AppCompatActivity {
     Button btn;
     TextView textView, textView2, textView3;
@@ -99,46 +95,20 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, (String) weather.get("icon"));
                 connection.disconnect();
                 Log.d(LOG_TAG, "Disconnect");
-                byte[] bytes = imageByter(this, iconUrls);
-                final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                final Bitmap bitmap = ImageByter.creatBitmap(iconUrls);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         textView.setText(tempC);
                         textView2.setText(desc);
                         textView3.setText(name);
-                        imgview.setImageBitmap(bm);
+                        imgview.setImageBitmap(bitmap);
                     }
                 });
 
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Exeption", e);
             }
-        }
-        private byte[] imageByter (Runnable context, String url){
-            URL url1 = null;
-            try {
-                url1 = new URL(url);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            InputStream is = null;
-            try {
-                is = (InputStream) url1.getContent();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            try {
-                while ((bytesRead = is.read(buffer)) != -1) {
-                    output.write(buffer, 0, bytesRead);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return output.toByteArray();
         }
     });
 }
