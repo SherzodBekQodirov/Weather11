@@ -1,6 +1,7 @@
 package ru.startandroid.weather;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     Button btn;
     TextView textView, textView2, textView3;
     ImageView imgview;
+    MyTask mt;
     final String LOG_TAG = "myLogs";
     String OPEN_WEATHER_MAP_API =
             "http://api.openweathermap.org/data/2.5/forecast?id=1512440&APPID=a7dc109561ec63ddd24cd4df691e3043";
@@ -38,17 +40,20 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                t.start();
+                mt = new MyTask();
+                mt.execute();
+
                 Log.d(LOG_TAG, "T is started");
             }
         });
     }
-    Thread t = new Thread(new Runnable() {
-        @TargetApi(Build.VERSION_CODES.KITKAT)
-        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
+
+    class MyTask extends AsyncTask<Void, Void, Void> {
+        String tempC, desc, name;
+        Bitmap bitmap;
+
         @Override
-        public void run() {
-            Log.d(LOG_TAG, "Thread is run!");
+        protected Void doInBackground(Void... voids) {
             try {
                 URL url = new URL(String.format("http://api.openweathermap.org/data/2.5/forecast?id=1512440&APPID=" +
                         "a7dc109561ec63ddd24cd4df691e3043"));
@@ -72,22 +77,21 @@ public class MainActivity extends AppCompatActivity {
                 JSONObject data = new JSONObject(json.toString());
                 if (data.getInt("cod") != 200) {
                     Log.d(LOG_TAG, "Returned null");
-                    return;
                 }
                 JSONArray list = data.getJSONArray("list");
                 JSONObject firstItemoftheArray = list.getJSONObject(0);
                 JSONObject main = firstItemoftheArray.getJSONObject("main");
                 JSONObject city = data.getJSONObject("city");
-                final String name = city.getString("name");
+                this.name = city.getString("name");
                 final double temp = main.getDouble("temp");
                 final String temp2 = String.valueOf(temp);
                 Double tempD = Double.parseDouble(temp2);
                 final int tempI = (int) (tempD - 273.15);
-                final String tempC = Integer.toString(tempI) + "°c";
+                this.tempC = Integer.toString(tempI) + "°c";
                 JSONObject weather = firstItemoftheArray.getJSONArray("weather").getJSONObject(0);
                 String mainString = weather.getString("main");
                 Log.d(LOG_TAG, (String) weather.get("main"));
-                final String desc = weather.getString("description");
+                this.desc = weather.getString("description");
                 Log.d(LOG_TAG, (String) weather.get("description"));
                 final String icond = weather.getString("icon");
                 Log.d(LOG_TAG, weather.getString("icon"));
@@ -95,20 +99,20 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, (String) weather.get("icon"));
                 connection.disconnect();
                 Log.d(LOG_TAG, "Disconnect");
-                final Bitmap bitmap = ImageByter.creatBitmap(iconUrls);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        textView.setText(tempC);
-                        textView2.setText(desc);
-                        textView3.setText(name);
-                        imgview.setImageBitmap(bitmap);
-                    }
-                });
+                this.bitmap = ImageByter.creatBitmap(iconUrls);
 
             } catch (Exception e) {
                 Log.e(LOG_TAG, "Exeption", e);
             }
+            return null;
         }
-    });
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            textView.setText(tempC);
+            textView2.setText(desc);
+            textView3.setText(name);
+            imgview.setImageBitmap(bitmap);
+        }
+    }
+
 }
