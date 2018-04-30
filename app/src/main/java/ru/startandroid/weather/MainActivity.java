@@ -8,21 +8,33 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.gson.Gson;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.List;
+
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import ru.startandroid.weather.response.MainParent;
+import ru.startandroid.weather.response.Weather;
 
 public class MainActivity extends AppCompatActivity {
     Button btn;
     TextView textView, textView2, textView3;
     ImageView imgview;
-    MyTask mt;
+    Bitmap bitmap;
+//    MyTask mt;
     final String LOG_TAG = "myLogs";
     OkHttpClient client;
+    Request request;
     String url =
             "http://api.openweathermap.org/data/2.5/forecast?id=1512440&APPID=a7dc109561ec63ddd24cd4df691e3043";
 
@@ -39,91 +51,59 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mt = new MyTask();
-                mt.execute();
+                try {
+
+                    client.newCall(request).execute();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
     }
-    class MyTask extends AsyncTask<Void, Void, String> {
-        String tempC, desc, name;
-        Bitmap bitmap;
-        String json = null;
+    public class okhttp {
+        public void getAsyncCall(){
 
-        @Override
-        protected String doInBackground(Void... voids) {
+            String url =
+                    "http://api.openweathermap.org/data/2.5/forecast?id=1512440&APPID=a7dc109561ec63ddd24cd4df691e3043";
 
-
-            try {
-                Request request = new Request.Builder()
-                        .url(url)
-                        .build();
-                client = new OkHttpClient();
-                final Call call = client.newCall(request);
-                Response response = call.execute();
-                if (response.isSuccessful())
-                    json = response.body().string();
-
-                Log.d("Func", json);
+            final OkHttpClient httpClient = new OkHttpClient();
+            final Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+            final Gson gson = new Gson();
+            httpClient.newCall(request).enqueue(new Callback() {
 
 
-
-//                URL url = new URL(String.format("http://api.openweathermap.org/data/2.5/forecast?id=1512440&APPID=" +
-//                        "a7dc109561ec63ddd24cd4df691e3043"));
-//                HttpURLConnection connection =
-//                        (HttpURLConnection) url.openConnection();
-//                Log.d(LOG_TAG, "Conection is open");
-//
-//                connection.addRequestProperty("a7dc109561ec63ddd24cd4df691e3043",
-//                        getString(R.string.open_weather_maps_app_id));
-//                Log.d(LOG_TAG, "RequestProperty");
-//
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//
-//                StringBuffer json = new StringBuffer(1024);
-//                String tmp = "";
-//                while ((tmp = reader.readLine()) != null) {
-//                    json.append(tmp).append("\n");
-//                }
-//                reader.close();
-//                Log.d(LOG_TAG, json.toString());
-                JSONObject data = new JSONObject(json.toString());
-                if (data.getInt("cod") != 200) {
-                    Log.d(LOG_TAG, "Returned null");
+                @Override public void onFailure(Call call, IOException e) {
                 }
-                JSONArray list = data.getJSONArray("list");
-                JSONObject firstItemoftheArray = list.getJSONObject(0);
-                JSONObject main = firstItemoftheArray.getJSONObject("main");
-                JSONObject city = data.getJSONObject("city");
-                this.name = city.getString("name");
-                final double temp = main.getDouble("temp");
-                final String temp2 = String.valueOf(temp);
-                Double tempD = Double.parseDouble(temp2);
-                final int tempI = (int) (tempD - 273.15);
-                this.tempC = Integer.toString(tempI) + "°c";
-                JSONObject weather = firstItemoftheArray.getJSONArray("weather").getJSONObject(0);
-                String mainString = weather.getString("main");
-                Log.d(LOG_TAG, (String) weather.get("main"));
-                this.desc = weather.getString("description");
-                Log.d(LOG_TAG, (String) weather.get("description"));
-                final String icond = weather.getString("icon");
-                Log.d(LOG_TAG, weather.getString("icon"));
-                final String iconUrls = "http://openweathermap.org/img/w/" + icond + ".png";
-                Log.d(LOG_TAG, (String) weather.get("icon"));
-                Log.d(LOG_TAG, "Disconnect");
-                this.bitmap = ImageByter.creatBitmap(iconUrls);
 
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Exeption", e);
-            }
-            return json;
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    final ResponseApi responseApi = gson.fromJson(response.body().charStream(), ResponseApi.class);
+                    Log.d(LOG_TAG, responseApi.toString());
+
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Error response " + response);
+                    }
+//                    final List<Weather> icond = responseApi.getWeatherList();
+//                    final String iconUrls = "http://openweathermap.org/img/w/" + icond + ".png";
+//                    bitmap = ImageByter.creatBitmap(iconUrls);
+                    final MainParent temp = responseApi.list.get(1);
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textView.setText((CharSequence) temp);
+//                            textView2.setText(name);
+//                            textView3.setText(desc);
+//                            imgview.setImageBitmap(bitmap);
+                        }
+                    });
+                }
+            });
         }
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            textView.setText(tempC);
-            textView2.setText(desc);
-            textView3.setText(name);
-            imgview.setImageBitmap(bitmap);
-        }
+
+
     }
 
 }
