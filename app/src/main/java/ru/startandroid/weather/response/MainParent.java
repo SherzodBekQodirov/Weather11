@@ -1,8 +1,19 @@
 package ru.startandroid.weather.response;
 
+import java.util.List;
+
 public class MainParent {
-    public Long dt;
-    public Main main;
+    private Long dt;
+    private Main main;
+    private List<Weather> weather;
+
+    public List<Weather> getWeatherList() {
+        return weather;
+    }
+
+    public void setWeatherList(List<Weather> weatherList) {
+        this.weather = weatherList;
+    }
 
     public Long getDt() {
         return dt;
@@ -25,6 +36,7 @@ public class MainParent {
         return "MainParent{" +
                 "dt=" + dt +
                 ", main=" + main +
+                ", weatherList=" + weather +
                 '}';
     }
 }

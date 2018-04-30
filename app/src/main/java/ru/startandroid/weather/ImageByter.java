@@ -1,6 +1,9 @@
 package ru.startandroid.weather;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.TextUtils;
+import android.util.Log;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +21,8 @@ public class ImageByter {
         try {
             is = (InputStream) url1.getContent();
         } catch (IOException e) {
-            e.printStackTrace();
+            // Кирадиган стрим яралмаса дальше юришдан фойда йук.
+            Log.e("ImageByter", "Error: ", e);
         }
         byte[] buffer = new byte[8192];
         int bytesRead;
@@ -33,6 +37,10 @@ public class ImageByter {
         return output.toByteArray();
     }
     public static Bitmap creatBitmap (String url){
+        if (TextUtils.isEmpty(url)) {
+            Log.e("ImageByter", "Empty url: ");
+            return null;
+        }
         byte[] bytes = imageByter(url);
         final Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         return bm;

@@ -6,18 +6,10 @@ import ru.startandroid.weather.response.Weather;
 
 public class ResponseApi {
     public List<MainParent> list;
-    public List<Weather> weatherList;
     String code;
     Float message;
     int cnt;
 
-    public List<Weather> getWeatherList() {
-        return weatherList;
-    }
-
-    public void setWeatherList(List<Weather> weatherList) {
-        this.weatherList = weatherList;
-    }
 
     public List<MainParent> getList(String temp) {
         return list;
