@@ -1,22 +1,22 @@
 package ru.startandroid.weather;
 import java.util.List;
 
+import ru.startandroid.weather.response.City;
 import ru.startandroid.weather.response.MainParent;
-import ru.startandroid.weather.response.Weather;
 
 public class ResponseApi {
     public List<MainParent> list;
-    public List<Weather> weatherList;
+    public City city;
     String code;
     Float message;
     int cnt;
 
-    public List<Weather> getWeatherList() {
-        return weatherList;
+    public City getCity() {
+        return city;
     }
 
-    public void setWeatherList(List<Weather> weatherList) {
-        this.weatherList = weatherList;
+    public void setCity(City city) {
+        this.city = city;
     }
 
     public List<MainParent> getList(String temp) {
@@ -50,16 +50,14 @@ public class ResponseApi {
     public void setCnt(int cnt) {
         this.cnt = cnt;
     }
-
     @Override
     public String toString() {
         return "ResponseApi{" +
                 "list=" + list +
+                ", city=" + city +
                 ", code='" + code + '\'' +
                 ", message=" + message +
                 ", cnt=" + cnt +
                 '}';
     }
 }
-
-

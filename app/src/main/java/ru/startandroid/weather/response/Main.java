@@ -1,13 +1,13 @@
 package ru.startandroid.weather.response;
 
 public class Main {
-    public int temp;
+    public double temp;
 
-    public int getTemp() {
+    public double getTemp() {
         return temp;
     }
 
-    public void setTemp(int temp) {
+    public void setTemp(float temp) {
         this.temp = temp;
     }
 
