@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,7 @@ public class FragmentWeather extends Fragment {
         textView2 = (TextView) v.findViewById(R.id.textView2);
         textView3 = (TextView) v.findViewById(R.id.textView3);
         imgview = (ImageView) v.findViewById(R.id.imageView);
+        setHasOptionsMenu(true);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,9 +117,9 @@ public class FragmentWeather extends Fragment {
 
     return v;
     }
-    public boolean onCreateOptionsMenu(Menu menu){
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
         getActivity().getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        super.onCreateOptionsMenu(menu,inflater);
     }
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
