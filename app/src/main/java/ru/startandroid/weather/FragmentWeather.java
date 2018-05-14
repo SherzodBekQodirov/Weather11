@@ -44,9 +44,21 @@ public class FragmentWeather extends Fragment {
     final String LOG_TAG = "myLogs";
     long id;
     private static final String DEFAULT_VERSION = "2.5";
+    static final String ARGUMENT_PAGE_NUMBER = "arg_page_number";
+
+    int pageNumber;
+
+    static FragmentWeather newInstance(int page) {
+        FragmentWeather pageFragment = new FragmentWeather();
+        Bundle arguments = new Bundle();
+        arguments.putInt(ARGUMENT_PAGE_NUMBER, page);
+        pageFragment.setArguments(arguments);
+        return pageFragment;
+    }
 
     public  View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        pageNumber = getArguments().getInt(ARGUMENT_PAGE_NUMBER);
         View v = inflater.inflate(R.layout.fragment, null);
         btn = (Button) v.findViewById(R.id.button);
         textView = (TextView) v.findViewById(R.id.textView);
