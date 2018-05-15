@@ -44,21 +44,28 @@ public class FragmentWeather extends Fragment {
     final String LOG_TAG = "myLogs";
     long id;
     private static final String DEFAULT_VERSION = "2.5";
-    static final String ARGUMENT_PAGE_NUMBER = "arg_page_number";
+//    static final String ARGUMENT_PAGE_NUMBER = "arg_page_number";
 
     int pageNumber;
-
-    static FragmentWeather newInstance(int page) {
-        FragmentWeather pageFragment = new FragmentWeather();
-        Bundle arguments = new Bundle();
-        arguments.putInt(ARGUMENT_PAGE_NUMBER, page);
-        pageFragment.setArguments(arguments);
-        return pageFragment;
+    public static FragmentWeather newInstance(int page) {
+        FragmentWeather fragment = new FragmentWeather();
+        Bundle args=new Bundle();
+        args.putInt("num", page);
+        fragment.setArguments(args);
+        return fragment;
     }
+
+//        static FragmentWeather newInstance() {
+//        FragmentWeather pageFragment = new FragmentWeather();
+//        Bundle arguments = new Bundle();
+//        arguments.putInt(ARGUMENT_PAGE_NUMBER, page);
+//        pageFragment.setArguments(arguments);
+//        return pageFragment;
+//    }
 
     public  View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        pageNumber = getArguments().getInt(ARGUMENT_PAGE_NUMBER);
+//        pageNumber = getArguments().getInt(ARGUMENT_PAGE_NUMBER);
         View v = inflater.inflate(R.layout.fragment, null);
         btn = (Button) v.findViewById(R.id.button);
         textView = (TextView) v.findViewById(R.id.textView);
@@ -66,6 +73,7 @@ public class FragmentWeather extends Fragment {
         textView3 = (TextView) v.findViewById(R.id.textView3);
         imgview = (ImageView) v.findViewById(R.id.imageView);
         setHasOptionsMenu(true);
+        pageNumber = getArguments() != null ? getArguments().getInt("num") : 1;
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
