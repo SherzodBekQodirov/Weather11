@@ -44,21 +44,16 @@ public class FragmentWeather extends Fragment {
     final String LOG_TAG = "myLogs";
     long id;
     private static final String DEFAULT_VERSION = "2.5";
-    static final String ARGUMENT_PAGE_NUMBER = "arg_page_number";
 
-    int pageNumber;
-
-    static FragmentWeather newInstance(int page) {
+    static FragmentWeather newInstance() {
         FragmentWeather pageFragment = new FragmentWeather();
         Bundle arguments = new Bundle();
-        arguments.putInt(ARGUMENT_PAGE_NUMBER, page);
         pageFragment.setArguments(arguments);
         return pageFragment;
     }
 
-    public  View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        pageNumber = getArguments().getInt(ARGUMENT_PAGE_NUMBER);
         View v = inflater.inflate(R.layout.fragment, null);
         btn = (Button) v.findViewById(R.id.button);
         textView = (TextView) v.findViewById(R.id.textView);
@@ -80,7 +75,7 @@ public class FragmentWeather extends Fragment {
         Gson gson = new GsonBuilder().create();
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .baseUrl(url+DEFAULT_VERSION+"/")
+                .baseUrl(url + DEFAULT_VERSION + "/")
                 .build();
         final Link link = retrofit.create(Link.class);
 
@@ -90,11 +85,11 @@ public class FragmentWeather extends Fragment {
 
             @Override
             public void onResponse(final Call<ResponseApi> call, Response<ResponseApi> response) {
-                if (response.isSuccessful()){
-                    Log.d(LOG_TAG, "response"+response.body().toString());
+                if (response.isSuccessful()) {
+                    Log.d(LOG_TAG, "response" + response.body().toString());
                 } else {
                     try {
-                        Log.d(LOG_TAG, "response full errors"+response.errorBody().string());
+                        Log.d(LOG_TAG, "response full errors" + response.errorBody().string());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -107,7 +102,6 @@ public class FragmentWeather extends Fragment {
                 final String main = weatherList.get(0).getMain();
                 String icon = weatherList.get(0).getIcon();
                 final String iconUrls = "http://openweathermap.org/img/w/" + icon + ".png";
-
 
 
                 getActivity().runOnUiThread(new Runnable() {
@@ -127,14 +121,16 @@ public class FragmentWeather extends Fragment {
             }
         });
 
-    return v;
+        return v;
     }
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         getActivity().getMenuInflater().inflate(R.menu.main, menu);
-        super.onCreateOptionsMenu(menu,inflater);
+        super.onCreateOptionsMenu(menu, inflater);
     }
-    public boolean onOptionsItemSelected(MenuItem item){
-        switch (item.getItemId()){
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
             case R.id.item1:
 //                Toast.makeText(this, "Item 1 bosildi", Toast.LENGTH_SHORT).show();
                 return true;
@@ -142,7 +138,5 @@ public class FragmentWeather extends Fragment {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-
-    }
+}
 
