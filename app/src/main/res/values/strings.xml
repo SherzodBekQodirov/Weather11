@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Weather</string>
     <string name="Button">Обновить</string>
+
+
     <!-- Put your own APP ID here -->
     <string name="open_weather_maps_app_id">a7dc109561ec63ddd24cd4df691e3043</string>
 </resources>

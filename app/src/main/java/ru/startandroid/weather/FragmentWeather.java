@@ -1,6 +1,6 @@
 package ru.startandroid.weather;
-
-import android.app.Fragment;
+import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,15 +15,11 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
-
 import java.io.IOException;
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,6 +33,7 @@ import ru.startandroid.weather.response.Weather;
  */
 
 public class FragmentWeather extends Fragment {
+
     private Button btn;
     private TextView textView, textView2, textView3;
     private ImageView imgview;
@@ -44,28 +41,23 @@ public class FragmentWeather extends Fragment {
     final String LOG_TAG = "myLogs";
     long id;
     private static final String DEFAULT_VERSION = "2.5";
-//    static final String ARGUMENT_PAGE_NUMBER = "arg_page_number";
 
     int pageNumber;
-    public static FragmentWeather newInstance(int page) {
-        FragmentWeather fragment = new FragmentWeather();
-        Bundle args=new Bundle();
-        args.putInt("num", page);
-        fragment.setArguments(args);
-        return fragment;
+    static FragmentWeather newInstance(int city) {
+        FragmentWeather pageFragment = new FragmentWeather();
+        Bundle bundle = new Bundle();
+        bundle.putInt("city", city);
+        pageFragment.setArguments(bundle);
+        return pageFragment;
     }
 
-//        static FragmentWeather newInstance() {
-//        FragmentWeather pageFragment = new FragmentWeather();
-//        Bundle arguments = new Bundle();
-//        arguments.putInt(ARGUMENT_PAGE_NUMBER, page);
-//        pageFragment.setArguments(arguments);
-//        return pageFragment;
-//    }
+
 
     public  View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-//        pageNumber = getArguments().getInt(ARGUMENT_PAGE_NUMBER);
+        int numberofcites;
+        Bundle extras = getParentFragment().getArguments();
+        numberofcites = extras.getInt("city");
         View v = inflater.inflate(R.layout.fragment, null);
         btn = (Button) v.findViewById(R.id.button);
         textView = (TextView) v.findViewById(R.id.textView);
@@ -93,7 +85,8 @@ public class FragmentWeather extends Fragment {
         final Link link = retrofit.create(Link.class);
 
 
-        Call<ResponseApi> call = link.getData(id, "APPID");
+
+        Call<ResponseApi> call = link.getData(numberofcites, "a7dc109561ec63ddd24cd4df691e3043");
         call.enqueue(new Callback<ResponseApi>() {
 
             @Override

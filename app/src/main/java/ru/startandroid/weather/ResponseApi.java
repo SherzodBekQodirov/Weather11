@@ -1,4 +1,5 @@
 package ru.startandroid.weather;
+
 import java.util.List;
 
 import ru.startandroid.weather.response.City;
@@ -50,6 +51,7 @@ public class ResponseApi {
     public void setCnt(int cnt) {
         this.cnt = cnt;
     }
+
     @Override
     public String toString() {
         return "ResponseApi{" +
