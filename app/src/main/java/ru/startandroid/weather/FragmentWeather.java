@@ -1,14 +1,10 @@
 package ru.startandroid.weather;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.nfc.Tag;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v7.widget.ButtonBarLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.gson.Gson;
@@ -31,9 +26,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import ru.startandroid.weather.optionsmenuitems.CangeCites;
 import ru.startandroid.weather.response.MainParent;
 import ru.startandroid.weather.response.Weather;
-//import android.support.design.widget.FloatingActionButton;
 
 /**
  * Created by sher on 5/13/18.
@@ -146,8 +141,9 @@ public class FragmentWeather extends Fragment {
         MenuItem menuItem;
         switch (item.getItemId()){
             case R.id.changecity:
-            LayoutInflater li = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            li.inflate(R.layout.activity_cange_cites, null);
+
+                Intent t = new Intent(getActivity(), CangeCites.class);
+                getActivity().startActivity(t);
             Log.d(LOG_TAG, "inflate");
                 return true;
             case R.id.addcity:
