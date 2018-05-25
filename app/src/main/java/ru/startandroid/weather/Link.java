@@ -9,7 +9,7 @@ import retrofit2.http.Query;
 
 public interface Link {
     @GET("forecast")
-    Call<ResponseApi> getData(@Query("id") long id, @Query("APPID") String appId);
+    Call<ResponseApi> getData(@Query("q") String name, @Query("APPID") String appId);
 
 
 }

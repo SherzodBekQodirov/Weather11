@@ -1,5 +1,4 @@
 package ru.startandroid.weather;
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,12 +16,18 @@ public class MainActivity extends AppCompatActivity {
     ViewPager pager;
     PagerAdapter pagerAdapter;
 
+
+
     public MainActivity() throws IOException {
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Intent intent = getIntent();
+        String searchView = intent.getStringExtra("searchView");
+
+
 
         pager = (ViewPager) findViewById(R.id.pager);
         pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
@@ -42,12 +47,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-//    final Intent intent = new Intent(this, FragmentWeather.class);
-//    Bundle bundle = new Bundle();
+
 
 
     private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
-        List<Integer> cites = new ArrayList<>();
+        List<String> cites = new ArrayList<>();
 
 
 
@@ -55,18 +59,15 @@ public class MainActivity extends AppCompatActivity {
             super(fm);
 
 
-//            bundle.putIntegerArrayList("City", (ArrayList<Integer>) cites);
-//            intent.putExtras(bundle);
-//            startActivity(intent);
-            cites.add(1217662);
-            cites.add(1513157);
-            cites.add(1216265);
-            cites.add(1512569);
+
+            cites.add("Tashkent");
+            cites.add("Namangan");
+
         }
         @Override
         public Fragment getItem(int position) {
 
-                        int city = cites.get(position);
+                        String city = cites.get(position);
                         return FragmentWeather.newInstance(city);
         }
         @Override

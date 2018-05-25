@@ -1,8 +1,14 @@
 package ru.startandroid.weather;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.nfc.Tag;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.v7.widget.ButtonBarLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +33,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.startandroid.weather.response.MainParent;
 import ru.startandroid.weather.response.Weather;
+//import android.support.design.widget.FloatingActionButton;
 
 /**
  * Created by sher on 5/13/18.
@@ -34,7 +41,7 @@ import ru.startandroid.weather.response.Weather;
 
 public class FragmentWeather extends Fragment {
 
-    private Button btn;
+    private FloatingActionButton btn1;
     private TextView textView, textView2, textView3;
     private ImageView imgview;
     private Bitmap bitmap;
@@ -43,10 +50,10 @@ public class FragmentWeather extends Fragment {
     private static final String DEFAULT_VERSION = "2.5";
 
     int pageNumber;
-    static FragmentWeather newInstance(int city) {
+    static FragmentWeather newInstance(String city) {
         FragmentWeather pageFragment = new FragmentWeather();
         Bundle bundle = new Bundle();
-        bundle.putInt("city", city);
+        bundle.putString("city", city);
         pageFragment.setArguments(bundle);
         return pageFragment;
     }
@@ -55,18 +62,18 @@ public class FragmentWeather extends Fragment {
 
     public  View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        int numberofcites;
-        Bundle extras = getParentFragment().getArguments();
-        numberofcites = extras.getInt("city");
+        String nameofcites;
+        Bundle extras = getArguments();
+        nameofcites = extras.getString("city");
         View v = inflater.inflate(R.layout.fragment, null);
-        btn = (Button) v.findViewById(R.id.button);
+        btn1 = (FloatingActionButton) v.findViewById(R.id.floatingActionButton2);
         textView = (TextView) v.findViewById(R.id.textView);
         textView2 = (TextView) v.findViewById(R.id.textView2);
         textView3 = (TextView) v.findViewById(R.id.textView3);
         imgview = (ImageView) v.findViewById(R.id.imageView);
         setHasOptionsMenu(true);
         pageNumber = getArguments() != null ? getArguments().getInt("num") : 1;
-        btn.setOnClickListener(new View.OnClickListener() {
+        btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -86,7 +93,7 @@ public class FragmentWeather extends Fragment {
 
 
 
-        Call<ResponseApi> call = link.getData(numberofcites, "a7dc109561ec63ddd24cd4df691e3043");
+        Call<ResponseApi> call = link.getData(nameofcites, "a7dc109561ec63ddd24cd4df691e3043");
         call.enqueue(new Callback<ResponseApi>() {
 
             @Override
@@ -114,7 +121,7 @@ public class FragmentWeather extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        textView.setText(String.valueOf(temps) + "°C");
+                        textView.setText(String.valueOf(temps) + "°");
                         textView2.setText(main);
                         textView3.setText(myResponse.city.getName());
                         Picasso.get().load(iconUrls).into(imgview);
@@ -134,11 +141,18 @@ public class FragmentWeather extends Fragment {
         getActivity().getMenuInflater().inflate(R.menu.main, menu);
         super.onCreateOptionsMenu(menu,inflater);
     }
+    @SuppressLint("ResourceType")
     public boolean onOptionsItemSelected(MenuItem item){
+        MenuItem menuItem;
         switch (item.getItemId()){
-            case R.id.item1:
-//                Toast.makeText(this, "Item 1 bosildi", Toast.LENGTH_SHORT).show();
+            case R.id.changecity:
+            LayoutInflater li = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            li.inflate(R.layout.activity_cange_cites, null);
+            Log.d(LOG_TAG, "inflate");
                 return true;
+            case R.id.addcity:
+                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
