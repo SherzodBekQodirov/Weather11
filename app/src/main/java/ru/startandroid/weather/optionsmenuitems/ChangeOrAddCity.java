@@ -9,19 +9,21 @@ import android.widget.SearchView;
 
 import ru.startandroid.weather.R;
 
-public class CangeCites extends Activity {
-    String searchView;
-
+public class ChangeOrAddCity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cange_cites);
-        SearchView searchView = (SearchView) findViewById(R.id.idsearch);
+        final SearchView searchView = (SearchView) findViewById(R.id.idsearch);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false;
+                Intent intent = new Intent();
+                intent.putExtra("name", query);
+                setResult(RESULT_OK, intent);
+                finish();
+                return true;
             }
             @Override
             public boolean onQueryTextChange(String newText) {
@@ -30,9 +32,6 @@ public class CangeCites extends Activity {
 
         });
 
-        Intent intent = new Intent(this, Activity.class);
-        intent.putExtra("searchView", searchView.getQuery());
-        startActivity(intent);
     }
 
 }

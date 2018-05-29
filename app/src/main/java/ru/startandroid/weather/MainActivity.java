@@ -3,18 +3,30 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import ru.startandroid.weather.optionsmenuitems.ChangeOrAddCity;
+
+
 public class MainActivity extends AppCompatActivity {
+
+    public static final int CITY_REQUEST_CODE = 705;
     static final String TAG = "myLogs";
     ViewPager pager;
     PagerAdapter pagerAdapter;
+    boolean isChange;
+    private List<String> cityList = new ArrayList<>();
+    public static final int NOTIFICATION_ID = 1;
 
 
 
@@ -24,15 +36,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Intent intent = getIntent();
-        String searchView = intent.getStringExtra("searchView");
-
-
-
         pager = (ViewPager) findViewById(R.id.pager);
-        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
-        pager.setAdapter(pagerAdapter);
-        Log.d(TAG, "Pajer setet Adapter");
+        fillCityList();
+        initViewPager();
+    }
+
+    private void fillCityList(){
+        cityList.add("Tashkent");
+    }
+
+    private void pagerItemClickListener() {
         pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
@@ -48,34 +61,72 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void initViewPager(){
+        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
+        pager.setAdapter(pagerAdapter);
+        pagerItemClickListener();
+    }
 
 
-    private class MyFragmentPagerAdapter extends FragmentPagerAdapter {
-        List<String> cites = new ArrayList<>();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null) {return;}
+        if(requestCode == CITY_REQUEST_CODE && resultCode == RESULT_OK){
+            String name = data.getStringExtra("name");
+            if(TextUtils.isEmpty(name)){
+                return;
+            }
+            if(isChange){
+                cityList.set(pager.getCurrentItem(), name);
+            }else{
+                cityList.add(name);
+            }
+            Log.d("onActivityResult", "cityList: "+cityList);
+            updateViewPager();
+        }
+    }
 
+    public void updateViewPager(){
+        pagerAdapter.notifyDataSetChanged();
+        pager.invalidate();
+    }
 
+    private class MyFragmentPagerAdapter extends FragmentStatePagerAdapter {
 
         public MyFragmentPagerAdapter(FragmentManager fm) {
             super(fm);
-
-
-
-            cites.add("Tashkent");
-            cites.add("Namangan");
-
         }
+
         @Override
         public Fragment getItem(int position) {
-
-                        String city = cites.get(position);
+                        String city = cityList.get(position);
                         return FragmentWeather.newInstance(city);
         }
         @Override
         public int getCount() {
-            return cites.size();
+            return cityList.size();
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
+        }
+
+    }
+
+    public void deleteCity(){
+        cityList.remove(pager.getCurrentItem());
+        updateViewPager();
+        if(cityList.isEmpty()){
+            Intent intent = new Intent(this, ChangeOrAddCity.class);
+            setIsChange(false);
+            startActivityForResult(intent, CITY_REQUEST_CODE);
         }
     }
 
+    public void setIsChange(boolean isChange){
+        this.isChange = isChange;
+    }
 
 }
 
