@@ -236,7 +236,7 @@ public class FragmentWeather extends Fragment {
 
     private void deleteCity() {
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).deleteCity();
+            ((MainActivity) getActivity()).onDeleteCityClick();
         }
     }
 

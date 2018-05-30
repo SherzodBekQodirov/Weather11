@@ -2,16 +2,12 @@ package ru.startandroid.weather;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,31 +18,27 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int CITY_REQUEST_CODE = 705;
     static final String TAG = "myLogs";
-    ViewPager pager;
+    private ViewPager viewPager;
     PagerAdapter pagerAdapter;
     boolean isChange;
-    private List<String> cityList = new ArrayList<>();
+    private List<Fragment> fragmentList = new ArrayList<>();
     public static final int NOTIFICATION_ID = 1;
 
-
-
-    public MainActivity() throws IOException {
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        pager = (ViewPager) findViewById(R.id.pager);
+        viewPager = (ViewPager) findViewById(R.id.pager);
         fillCityList();
         initViewPager();
     }
 
     private void fillCityList(){
-        cityList.add("Tashkent");
+        fragmentList.add(FragmentWeather.newInstance("Tashkent"));
     }
 
     private void pagerItemClickListener() {
-        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 Log.d(TAG, "onPageSelected, position = " + position);
@@ -62,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViewPager(){
-        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
-        pager.setAdapter(pagerAdapter);
+        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager(), fragmentList);
+        viewPager.setAdapter(pagerAdapter);
         pagerItemClickListener();
     }
 
@@ -73,51 +65,37 @@ public class MainActivity extends AppCompatActivity {
         if (data == null) {return;}
         if(requestCode == CITY_REQUEST_CODE && resultCode == RESULT_OK){
             String name = data.getStringExtra("name");
+            Fragment fragment = FragmentWeather.newInstance(name);
             if(TextUtils.isEmpty(name)){
                 return;
             }
             if(isChange){
-                cityList.set(pager.getCurrentItem(), name);
+                fragmentList.set(viewPager.getCurrentItem(), fragment);
             }else{
-                cityList.add(name);
+                fragmentList.add(fragment);
             }
-            Log.d("onActivityResult", "cityList: "+cityList);
+            Log.d("onActivityResult", "fragmentList: "+ fragmentList);
             updateViewPager();
         }
     }
 
     public void updateViewPager(){
         pagerAdapter.notifyDataSetChanged();
-        pager.invalidate();
+        viewPager.invalidate();
     }
 
-    private class MyFragmentPagerAdapter extends FragmentStatePagerAdapter {
-
-        public MyFragmentPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-                        String city = cityList.get(position);
-                        return FragmentWeather.newInstance(city);
-        }
-        @Override
-        public int getCount() {
-            return cityList.size();
-        }
-
-        @Override
-        public int getItemPosition(Object object) {
-            return POSITION_NONE;
-        }
-
-    }
-
-    public void deleteCity(){
-        cityList.remove(pager.getCurrentItem());
+    public void onDeleteCityClick(){
+        deleteCurrentCity();
         updateViewPager();
-        if(cityList.isEmpty()){
+        addCityIfEmpty();
+    }
+
+    private void deleteCurrentCity() {
+        fragmentList.remove(viewPager.getCurrentItem());
+    }
+
+    private void addCityIfEmpty() {
+        if(fragmentList.isEmpty()){
             Intent intent = new Intent(this, ChangeOrAddCity.class);
             setIsChange(false);
             startActivityForResult(intent, CITY_REQUEST_CODE);
