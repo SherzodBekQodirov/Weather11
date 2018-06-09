@@ -24,4 +24,9 @@ public class MyFragmentPagerAdapter extends FragmentStatePagerAdapter {
     public int getCount() {
         return mList.size();
     }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
+    }
 }

@@ -1,4 +1,5 @@
 package ru.startandroid.weather;
+import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,7 +15,7 @@ import java.util.List;
 import ru.startandroid.weather.optionsmenuitems.ChangeOrAddCity;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WeatherFragment.Callbacks {
 
     public static final int CITY_REQUEST_CODE = 705;
     static final String TAG = "myLogs";
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     boolean isChange;
     private List<Fragment> fragmentList = new ArrayList<>();
     public static final int NOTIFICATION_ID = 1;
+    WeatherFragment weatherFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fillCityList(){
-        fragmentList.add(FragmentWeather.newInstance("Tashkent"));
+        fragmentList.add(WeatherFragment.newInstance("Tashkent"));
     }
 
     private void pagerItemClickListener() {
@@ -59,19 +62,24 @@ public class MainActivity extends AppCompatActivity {
         pagerItemClickListener();
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         if (data == null) {return;}
         if(requestCode == CITY_REQUEST_CODE && resultCode == RESULT_OK){
             String name = data.getStringExtra("name");
-            Fragment fragment = FragmentWeather.newInstance(name);
+            Fragment fragment = WeatherFragment.newInstance(name);
             if(TextUtils.isEmpty(name)){
                 return;
             }
             if(isChange){
-                fragmentList.set(viewPager.getCurrentItem(), fragment);
+                    fragmentList.set(viewPager.getCurrentItem(), fragment);
+
             }else{
+
+
+
+
                 fragmentList.add(fragment);
             }
             Log.d("onActivityResult", "fragmentList: "+ fragmentList);
@@ -84,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.invalidate();
     }
 
-    public void onDeleteCityClick(){
+    public void onDeleteCurrentCityClick(){
         deleteCurrentCity();
         updateViewPager();
         addCityIfEmpty();
@@ -93,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
     private void deleteCurrentCity() {
         fragmentList.remove(viewPager.getCurrentItem());
     }
+
 
     private void addCityIfEmpty() {
         if(fragmentList.isEmpty()){
@@ -105,6 +114,26 @@ public class MainActivity extends AppCompatActivity {
     public void setIsChange(boolean isChange){
         this.isChange = isChange;
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        tryToShowNotification();
+
+    }
+
+
+
+    private void tryToShowNotification() {
+        WeatherFragment f = (WeatherFragment) fragmentList.get(viewPager.getCurrentItem());
+        f.showNotification();
+    }
+
+    @Override
+    public void showNotification(Notification notification) {
+
+    }
+
 
 }
 

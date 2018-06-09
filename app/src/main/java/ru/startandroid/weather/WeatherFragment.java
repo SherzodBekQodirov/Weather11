@@ -2,11 +2,13 @@ package ru.startandroid.weather;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -25,45 +27,44 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import java.io.IOException;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import ru.startandroid.weather.data.CityFetcher;
+import ru.startandroid.weather.data.ResponseListener;
 import ru.startandroid.weather.optionsmenuitems.ChangeOrAddCity;
 import ru.startandroid.weather.response.MainParent;
 import ru.startandroid.weather.response.Weather;
-
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static ru.startandroid.weather.MainActivity.NOTIFICATION_ID;
-
 /**
  * Created by sher on 5/13/18.
  */
-public class FragmentWeather extends Fragment {
+public class WeatherFragment extends Fragment {
     private FloatingActionButton btn1;
     private TextView textView, textView2, textView3;
     private ImageView imgview;
     private Bitmap bitmap;
     final String LOG_TAG = "myLogs";
     long id;
-    private static final String DEFAULT_VERSION = "2.5";
+
     final int DIALOG_DEL_CITY = 1;
     int pageNumber;
     String imageUrl;
-    private String cityName;
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
+    public String cityName;
+    public String nameCity;
+    private int temps;
+    private String main;
 
+    public CityFetcher mCityFetcher;
 
-    static FragmentWeather newInstance(String city) {
-        FragmentWeather pageFragment = new FragmentWeather();
+    static WeatherFragment newInstance(String city) {
+        WeatherFragment pageFragment = new WeatherFragment();
         Bundle bundle = new Bundle();
         bundle.putString("city", city);
         pageFragment.setArguments(bundle);
@@ -76,6 +77,8 @@ public class FragmentWeather extends Fragment {
         cityName = getArguments().getString("city");
         setHasOptionsMenu(true);
         pageNumber = getArguments() != null ? getArguments().getInt("num") : 1;
+        mCityFetcher = new CityFetcher();
+        mCityFetcher.setListener(listener);
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -83,15 +86,19 @@ public class FragmentWeather extends Fragment {
         View v = inflater.inflate(R.layout.fragment, null);
         intiViews(v);
         refreshBtnClickListner();
-
         return v;
     }
-
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         loadData();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mCityFetcher.onDestroy();
+        super.onDestroyView();
     }
 
     private void refreshBtnClickListner() {
@@ -101,11 +108,10 @@ public class FragmentWeather extends Fragment {
                 Animation animation = AnimationUtils.loadAnimation(v.getContext(), R.anim.fade_in);
                 imgview.startAnimation(animation);
                 updateViewPager();
-                showNotification(null);
+                Picasso.get().load(imageUrl).into(target);
             }
         });
     }
-
     private void intiViews(View v) {
         btn1 = (FloatingActionButton) v.findViewById(R.id.floatingActionButton2);
         textView = (TextView) v.findViewById(R.id.textView);
@@ -113,63 +119,46 @@ public class FragmentWeather extends Fragment {
         textView3 = (TextView) v.findViewById(R.id.textView3);
         imgview = (ImageView) v.findViewById(R.id.imageView);
     }
+    public void loadData() { // endi bu zaprosni activity ga chiqarish kerak, o''ziz harakat qib ko'ring.
+        mCityFetcher.fetchCity(cityName);
 
-    private void loadData() {
-        final String url =
-                "http://api.openweathermap.org/data/";
-        Gson gson = new GsonBuilder().create();
-        Retrofit retrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .baseUrl(url + DEFAULT_VERSION + "/")
-                .build();
-        final Link link = retrofit.create(Link.class);
-        Call<ResponseApi> call = link.getData(cityName, "a7dc109561ec63ddd24cd4df691e3043");
-        call.enqueue(new Callback<ResponseApi>() {
-            @Override
-            public void onResponse(final Call<ResponseApi> call, Response<ResponseApi> response) {
-                if (response.isSuccessful()) {
-                    Log.d(LOG_TAG, "response" + response.body().toString());
-                } else {
-                    try {
-                        Log.d(LOG_TAG, "response full errors" + response.errorBody().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                final ResponseApi myResponse = response.body();
-                if (myResponse == null) {
-                    Toast.makeText(getContext(), "Город был ошибочно идентифицирован или такого города не было найдено", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                final MainParent temp = myResponse.list.get(0);
-                List<Weather> weatherList = temp.getWeatherList();
-                int tempk = (int) temp.getMain().getTemp();
-                final int temps = (tempk - 273);
-                final String main = weatherList.get(0).getMain();
-                String icon = weatherList.get(0).getIcon();
-                imageUrl = "http://openweathermap.org/img/w/" + icon + ".png";
-
-                Bundle bundleArgs = new Bundle();
-                bundleArgs.putString("temp", String.valueOf(temps));
-                bundleArgs.putString("namecity", main); //
-
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        textView.setText(String.valueOf(temps) + "°");
-                        textView2.setText(main);
-                        textView3.setText(myResponse.city.getName());
-                        Picasso.get().load(imageUrl).into(imgview);
-                    }
-                });
-
-            }
-            @Override
-            public void onFailure(Call<ResponseApi> call, Throwable t) {
-                //agarda zapros serverga yetib bormasa
-            }
-        });
     }
+
+
+
+    private ResponseListener listener = new ResponseListener() {
+        @Override
+        public void success(final ResponseApi api) {
+
+            final MainParent temp = api.list.get(0);
+            List<Weather> weatherList = temp.getWeatherList();
+            int tempk = (int) temp.getMain().getTemp();
+            temps = (tempk - 273);
+            main = weatherList.get(0).getMain();
+            String icon = weatherList.get(0).getIcon();
+            imageUrl = "http://openweathermap.org/img/w/" + icon + ".png";
+            nameCity = api.city.getName();
+
+            Bundle bundleArgs = new Bundle();
+            bundleArgs.putInt("temp", temps);
+            bundleArgs.putString("main", main);
+
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textView.setText(String.valueOf(temps) + "°");
+                    textView2.setText(main);
+                    textView3.setText(api.city.getName());
+                    Picasso.get().load(imageUrl).into(imgview);
+                }
+            });
+        }
+
+        @Override
+        public void error(Exception e) {
+            Toast.makeText(getContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }
+    };
 
     private void loadIconAndShowNotifaction() {
         Picasso.get().load(imageUrl).into(target);
@@ -200,7 +189,6 @@ public class FragmentWeather extends Fragment {
                 return super.onOptionsItemSelected(item);
         }
     }
-
     private Dialog onCreateDialog(int id) {
         if (id == DIALOG_DEL_CITY) {
             AlertDialog.Builder adb = new AlertDialog.Builder(getActivity());
@@ -227,66 +215,68 @@ public class FragmentWeather extends Fragment {
         }
         return onCreateDialog(id);
     }
-
     private void setIsChange(boolean isChange) {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setIsChange(isChange);
         }
     }
-
-    private void deleteCity() {
+    public void deleteCity() {
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).onDeleteCityClick();
+            ((MainActivity) getActivity()).onDeleteCurrentCityClick();
         }
     }
-
     private void updateViewPager() {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).updateViewPager();
         }
     }
 
-
-
-    public void showNotification(Bitmap bitmap){ // new proekt sozdat qilib. sekin sekin kopiy past qivorasiz ok hop bro
+    public void showNotification(){
          if(getActivity() instanceof  MainActivity){
-            String cityName;
-            Bundle extras = getArguments();
-            cityName = extras.getString("namecity");
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity());
-            builder.setSmallIcon(R.drawable.ic_launcher_round);
+            builder.setSmallIcon(R.drawable.sunnywhite);
             builder.setAutoCancel(true);
-            builder.setLargeIcon(bitmap);
-            builder.setContentTitle(cityName);
-            builder.setContentText("Time to learn about notifications!");
-            builder.setSubText("Tap to view documentation about notifications.");
+             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                 builder.setLargeIcon(mBitmap);
+                 //Log.d(LOG_TAG, "bitmap is=" +bitmap);
+                 builder.setColor(getResources().getColor(R.color.color0));
+             } else {
+                 builder.setSmallIcon(R.drawable.ic_launcher_round);
+             }
+            builder.setContentTitle(nameCity);
+            builder.setContentText(main);
+            builder.setSubText("SubText");
+             builder.setStyle(new NotificationCompat.BigTextStyle()
+                     .bigText(temps+"°"));
+
             NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(
                     NOTIFICATION_SERVICE);
             notificationManager.notify(NOTIFICATION_ID, builder.build());
-
-
         }
     }
 
-
-
+    private Bitmap mBitmap;
 
     Target target = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             Log.d("onBitmapLoaded", "bla bla");
-            showNotification(bitmap);
+            mBitmap = bitmap;
+            showNotification();
         }
-
         @Override
         public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
         }
-
         @Override
         public void onPrepareLoad(Drawable placeHolderDrawable) {
-
         }
+
     };
+
+    public interface Callbacks {
+        void showNotification(Notification notification);
+
+    }
+
 }
 
