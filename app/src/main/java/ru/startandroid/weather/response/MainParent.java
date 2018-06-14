@@ -1,8 +1,9 @@
 package ru.startandroid.weather.response;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class MainParent {
+public class MainParent implements Serializable {
     private Long dt;
     private Main main;
     private List<Weather> weather;

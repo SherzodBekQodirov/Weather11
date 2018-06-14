@@ -1,4 +1,4 @@
-package ru.startandroid.weather;
+package ru.startandroid.weather.ui;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

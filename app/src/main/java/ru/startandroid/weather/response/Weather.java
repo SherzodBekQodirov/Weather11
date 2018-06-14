@@ -1,8 +1,9 @@
 package ru.startandroid.weather.response;
 
 
+import java.io.Serializable;
 
-public class Weather {
+public class Weather implements Serializable {
     public String icon;
     public String main;
 

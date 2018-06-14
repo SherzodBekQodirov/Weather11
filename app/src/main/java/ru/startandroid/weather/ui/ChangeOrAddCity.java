@@ -1,4 +1,4 @@
-package ru.startandroid.weather.optionsmenuitems;
+package ru.startandroid.weather.ui;
 
 import android.app.Activity;
 import android.content.Intent;

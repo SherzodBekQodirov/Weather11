@@ -1,4 +1,4 @@
-package ru.startandroid.weather;
+package ru.startandroid.weather.ui;
 import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,12 +7,15 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import ru.startandroid.weather.optionsmenuitems.ChangeOrAddCity;
+import ru.startandroid.weather.R;
+import ru.startandroid.weather.data.ResponseApi;
+import ru.startandroid.weather.data.CityFetcher;
+import ru.startandroid.weather.data.ResponseListener;
 
 
 public class MainActivity extends AppCompatActivity implements WeatherFragment.Callbacks {
@@ -21,30 +24,38 @@ public class MainActivity extends AppCompatActivity implements WeatherFragment.C
     static final String TAG = "myLogs";
     private ViewPager viewPager;
     PagerAdapter pagerAdapter;
-    boolean isChange;
+    boolean isChange = false;
     private List<Fragment> fragmentList = new ArrayList<>();
     public static final int NOTIFICATION_ID = 1;
-    WeatherFragment weatherFragment;
-
+    public CityFetcher mCityFetcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initViews();
+        attachCityFetcher();
+        fetchCity();
+    }
+
+    private void attachCityFetcher() {
+        mCityFetcher =  new CityFetcher();
+        mCityFetcher.setListener(listener);
+    }
+
+    private void initViews() {
         viewPager = (ViewPager) findViewById(R.id.pager);
-        fillCityList();
         initViewPager();
     }
 
-    private void fillCityList(){
-        fragmentList.add(WeatherFragment.newInstance("Tashkent"));
+    private void fetchCity(){
+        mCityFetcher.fetchCity("Tashkent");
     }
 
     private void pagerItemClickListener() {
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                Log.d(TAG, "onPageSelected, position = " + position);
             }
             @Override
             public void onPageScrolled(int position, float positionOffset,
@@ -64,26 +75,13 @@ public class MainActivity extends AppCompatActivity implements WeatherFragment.C
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (data == null) {return;}
         if(requestCode == CITY_REQUEST_CODE && resultCode == RESULT_OK){
             String name = data.getStringExtra("name");
-            Fragment fragment = WeatherFragment.newInstance(name);
             if(TextUtils.isEmpty(name)){
                 return;
             }
-            if(isChange){
-                    fragmentList.set(viewPager.getCurrentItem(), fragment);
-
-            }else{
-
-
-
-
-                fragmentList.add(fragment);
-            }
-            Log.d("onActivityResult", "fragmentList: "+ fragmentList);
-            updateViewPager();
+            mCityFetcher.fetchCity(name);
         }
     }
 
@@ -102,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements WeatherFragment.C
         fragmentList.remove(viewPager.getCurrentItem());
     }
 
-
     private void addCityIfEmpty() {
         if(fragmentList.isEmpty()){
             Intent intent = new Intent(this, ChangeOrAddCity.class);
@@ -117,12 +114,14 @@ public class MainActivity extends AppCompatActivity implements WeatherFragment.C
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        detachCityFetcher();
         tryToShowNotification();
-
+        super.onDestroy();
     }
 
-
+    private void detachCityFetcher() {
+        mCityFetcher.onDestroy();
+    }
 
     private void tryToShowNotification() {
         WeatherFragment f = (WeatherFragment) fragmentList.get(viewPager.getCurrentItem());
@@ -134,7 +133,23 @@ public class MainActivity extends AppCompatActivity implements WeatherFragment.C
 
     }
 
+    private ResponseListener listener = new ResponseListener() {
+        @Override
+        public void success(final ResponseApi api) {
+            Fragment fragment = WeatherFragment.newInstance(api);
+            if(isChange){
+                fragmentList.set(viewPager.getCurrentItem(), fragment);
+            }else{
+                fragmentList.add(fragment);
+            }
+            updateViewPager();
+        }
 
+        @Override
+        public void error(Exception e) {
+            Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+        }
+    };
 }
 
 

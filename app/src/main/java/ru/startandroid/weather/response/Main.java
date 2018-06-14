@@ -1,7 +1,9 @@
 package ru.startandroid.weather.response;
 
-public class Main {
-    public double temp;
+import java.io.Serializable;
+
+public class Main implements Serializable {
+    private double temp;
 
     public double getTemp() {
         return temp;

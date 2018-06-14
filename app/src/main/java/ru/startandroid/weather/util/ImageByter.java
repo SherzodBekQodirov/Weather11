@@ -1,4 +1,4 @@
-package ru.startandroid.weather;
+package ru.startandroid.weather.util;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.text.TextUtils;

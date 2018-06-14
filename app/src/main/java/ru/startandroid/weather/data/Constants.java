@@ -1,4 +1,4 @@
-package ru.startandroid.weather;
+package ru.startandroid.weather.data;
 
 public interface Constants {
    String BASE_URL = "http://api.openweathermap.org/data/";

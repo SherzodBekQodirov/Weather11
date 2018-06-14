@@ -1,4 +1,4 @@
-package ru.startandroid.weather;
+package ru.startandroid.weather.data;
 
 
 

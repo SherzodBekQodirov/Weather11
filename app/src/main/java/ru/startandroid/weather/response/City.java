@@ -1,12 +1,14 @@
 package ru.startandroid.weather.response;
 
+import java.io.Serializable;
+
 /**
  * Created by sher on 4/30/18.
  */
 
-public class City {
-    Long dt;
-    String name;
+public class City implements Serializable {
+    private Long dt;
+    private String name;
 
     public Long getDt() {
         return dt;

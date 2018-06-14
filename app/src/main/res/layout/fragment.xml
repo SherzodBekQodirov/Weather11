@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/iphone5s"
-    tools:context="ru.startandroid.weather.MainActivity">
+    tools:context="ru.startandroid.weather.ui.MainActivity">
 
 
     <TextView

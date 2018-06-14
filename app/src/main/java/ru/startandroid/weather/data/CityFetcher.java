@@ -8,12 +8,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import ru.startandroid.weather.Link;
-import ru.startandroid.weather.ResponseApi;
 
-import static ru.startandroid.weather.Constants.API_KEY;
-import static ru.startandroid.weather.Constants.BASE_URL;
-import static ru.startandroid.weather.Constants.DEFAULT_VERSION;
+import static ru.startandroid.weather.data.Constants.API_KEY;
+import static ru.startandroid.weather.data.Constants.BASE_URL;
+import static ru.startandroid.weather.data.Constants.DEFAULT_VERSION;
 
 public class CityFetcher {
 
