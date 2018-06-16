@@ -8,15 +8,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import ru.startandroid.weather.R;
 import ru.startandroid.weather.data.ResponseApi;
 import ru.startandroid.weather.data.CityFetcher;
 import ru.startandroid.weather.data.ResponseListener;
-
 
 public class MainActivity extends AppCompatActivity implements WeatherFragment.Callbacks {
 

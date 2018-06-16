@@ -33,5 +33,4 @@ public class ChangeOrAddCity extends Activity {
         });
 
     }
-
 }

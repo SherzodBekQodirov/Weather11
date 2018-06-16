@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -204,22 +205,28 @@ public class WeatherFragment extends Fragment {
     }
 
     public void showNotification() {
+
         if (getActivity() instanceof MainActivity) {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity());
             builder.setSmallIcon(R.drawable.sunnywhite);
             builder.setAutoCancel(true);
             if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 builder.setLargeIcon(mBitmap);
-                //Log.d(LOG_TAG, "bitmap is=" +bitmap);
                 builder.setColor(getResources().getColor(R.color.color0));
             } else {
                 builder.setSmallIcon(R.drawable.ic_launcher_round);
             }
             builder.setContentTitle(nameCity);
             builder.setContentText(main);
-            builder.setSubText("SubText");
+            builder.setSubText("");
             builder.setStyle(new NotificationCompat.BigTextStyle()
                     .bigText(temps + "°"));
+
+            Intent targetIntent = new Intent(getContext(), MainActivity.class);
+            targetIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent contentIntent = PendingIntent
+                    .getActivity(getContext(), 0, targetIntent, PendingIntent.FLAG_ONE_SHOT);
+            builder.setContentIntent(contentIntent);
 
             NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(
                     NOTIFICATION_SERVICE);
@@ -249,8 +256,6 @@ public class WeatherFragment extends Fragment {
 
     public interface Callbacks {
         void showNotification(Notification notification);
-
     }
-
 }
 
