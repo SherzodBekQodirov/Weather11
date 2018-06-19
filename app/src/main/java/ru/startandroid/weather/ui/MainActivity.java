@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements WeatherFragment.C
 
         @Override
         public void error(Exception e) {
-            Toast.makeText(MainActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "City name is invalide", Toast.LENGTH_SHORT).show();
         }
     };
 }

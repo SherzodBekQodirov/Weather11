@@ -154,6 +154,10 @@ public class WeatherFragment extends Fragment {
             case R.id.action_delete:
                 onCreateDialog(DIALOG_DEL_CITY).show();
                 return true;
+            case R.id.abauttheprogram:
+                Intent intent1 = new Intent(getActivity(), AbautActivity.class);
+                getActivity().startActivityForResult(intent1, MainActivity.CITY_REQUEST_CODE);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
