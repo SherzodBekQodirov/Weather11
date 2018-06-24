@@ -1,5 +1,6 @@
 package ru.startandroid.weather.data;
 
+import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -8,6 +9,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import ru.startandroid.weather.response.City;
 
 import static ru.startandroid.weather.data.Constants.API_KEY;
 import static ru.startandroid.weather.data.Constants.BASE_URL;
@@ -16,10 +18,10 @@ import static ru.startandroid.weather.data.Constants.DEFAULT_VERSION;
 public class CityFetcher {
 
     private final Link link;
-    private Call<ResponseApi> call;
-    private ResponseListener mListener;
 
-    public CityFetcher(){
+    private final static CityFetcher INSTANCE = new CityFetcher();
+
+    private CityFetcher() {
         Gson gson = new GsonBuilder().create();
         Retrofit retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create(gson))
@@ -28,53 +30,34 @@ public class CityFetcher {
         link = retrofit.create(Link.class);
     }
 
-    public void fetchCity(String cityName){
-        call = link.getData(cityName, API_KEY);
-        call.enqueue(callback);
+    public static CityFetcher getInstance() {
+        return INSTANCE;
     }
 
-    public void onDestroy(){
-        if(call != null && !call.isCanceled()){
-            call.cancel();
-        }
+    public void setDate() {
+// TODO shu yerda date ni bironta kurinishda olingda keyin saqlab quying Object field qilib
     }
 
-    private Callback<ResponseApi> callback = new Callback<ResponseApi>() {
-        @Override
-        public void onResponse(Call<ResponseApi> call, Response<ResponseApi> response) {
-            if(!response.isSuccessful()){
-                showError(new Exception(response.errorBody().toString()));
-                return;
+    public void fetchCity(@NonNull final String cityName, @NonNull final ResponseListener mListener) {
+        Call<ResponseApi> call = link.getData(cityName, API_KEY);
+        call.enqueue(new Callback<ResponseApi>() {
+            @Override
+            public void onResponse(Call<ResponseApi> call, Response<ResponseApi> response) {
+                if (!response.isSuccessful()) {
+                    String message = "город не найден";
+                    if (response.errorBody() != null) {
+                        message = response.errorBody().toString();
+                    }
+                    mListener.error(new Exception(message));
+                } else {
+                    mListener.success(response.body());
+                }
             }
 
-            if(response.body() == null){
-                showError(new Exception("город не найден"));
-                return;
+            @Override
+            public void onFailure(Call<ResponseApi> call, Throwable t) {
+                mListener.error(new Exception(t));
             }
-
-            if(mListener != null){
-                mListener.success(response.body());
-            }
-        }
-
-        @Override
-        public void onFailure(Call<ResponseApi> call, Throwable t) {
-
-        }
-    };
-
-
-    private void showError(Exception e){
-        if(mListener != null){
-            mListener.error(e);
-        }
+        });
     }
-
-    public void setListener(ResponseListener listener){
-        mListener = listener;
-    }
-
-
-
-
 }

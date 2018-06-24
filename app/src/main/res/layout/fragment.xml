@@ -63,28 +63,12 @@
         android:id="@+id/floatingActionButton2"
         android:layout_width="100dp"
         android:layout_height="102dp"
-        android:layout_marginLeft="232dp"
-        android:layout_marginStart="232dp"
-        android:layout_marginTop="416dp"
-        android:clickable="true"
-        app:backgroundTint="@android:color/transparent"
-        app:borderWidth="0dp"
-        app:elevation="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_margin="16dp"
+        android:foreground="?attr/selectableItemBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@drawable/ic_launcher_round"
         tools:ignore="MissingConstraints" />
-
-    <CalendarView
-        android:id="@+id/calendarView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="16dp"
-        android:theme="?android:attr/calendarViewStyle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

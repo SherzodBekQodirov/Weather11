@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import ru.startandroid.weather.R;
 
-public class AbautActivity extends AppCompatActivity {
+public class AboutActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
