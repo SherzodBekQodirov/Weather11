@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.ChangeOrAddCity" />
-        <activity android:name=".ui.AbautActivity"></activity>
+        <activity android:name=".ui.AboutActivity"></activity>
     </application>
 
 </manifest>

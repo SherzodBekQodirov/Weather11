@@ -7,50 +7,30 @@ import ru.startandroid.weather.response.City;
 import ru.startandroid.weather.response.MainParent;
 
 public class ResponseApi implements Serializable {
-    public List<MainParent> list;
-    public City city;
-    String code;
-    Float message;
-    int cnt;
+    private List<MainParent> list;
+    private City city;
+    private String code;
+    private Float message;
+    private int cnt;
 
-    public City getCity() {
-        return city;
-    }
-
-    public void setCity(City city) {
-        this.city = city;
-    }
-
-    public List<MainParent> getList(String temp) {
+    public List<MainParent> getList() {
         return list;
     }
 
-    public void setList(List<MainParent> list) {
-        this.list = list;
+    public City getCity() {
+        return city;
     }
 
     public String getCode() {
         return code;
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
     public Float getMessage() {
         return message;
     }
 
-    public void setMessage(Float message) {
-        this.message = message;
-    }
-
     public int getCnt() {
         return cnt;
-    }
-
-    public void setCnt(int cnt) {
-        this.cnt = cnt;
     }
 
     @Override
