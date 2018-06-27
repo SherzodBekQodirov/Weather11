@@ -1,15 +1,19 @@
 package ru.startandroid.weather.data;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import ru.startandroid.weather.response.City;
 
 import static ru.startandroid.weather.data.Constants.API_KEY;
 import static ru.startandroid.weather.data.Constants.BASE_URL;

@@ -2,6 +2,8 @@ package ru.startandroid.weather.ui;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.Notification;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +15,8 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import ru.startandroid.weather.R;
@@ -27,8 +31,8 @@ public class MainActivity extends AppCompatActivity {
     private MyFragmentPagerAdapter pagerAdapter;
 
     private LocalStorage localStorage;
-
-
+    boolean isChange;
+    int index;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,10 +60,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.changecity:
+                setIsChange(true);
                 Intent t = new Intent(this, ChangeOrAddCity.class);
                 startActivityForResult(t, MainActivity.CITY_REQUEST_CODE);
                 return true;
             case R.id.addcity:
+                setIsChange(false);
                 Intent intent = new Intent(this, ChangeOrAddCity.class);
                 this.startActivityForResult(intent, MainActivity.CITY_REQUEST_CODE);
                 return true;
@@ -101,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showDeleteDialog() {
-        int index = viewPager.getCurrentItem();
+        index = viewPager.getCurrentItem();
         final List<String> cityList = pagerAdapter.getCityList();
         if (index >= cityList.size() || index < 0) {
             Toast.makeText(MainActivity.this, "Error during deleting the city", Toast.LENGTH_SHORT).show();
@@ -140,10 +146,21 @@ public class MainActivity extends AppCompatActivity {
             if (TextUtils.isEmpty(name)) {
                 return;
             }
-            pagerAdapter.addCity(name);
+            if(isChange){
+                pagerAdapter.setCityList().set(viewPager.getCurrentItem(), name);
+            }else{
+                pagerAdapter.addCity(name);
+            }
             pagerAdapter.notifyDataSetChanged();
         }
     }
+    public void setIsChange(boolean isChange){
+        this.isChange = isChange;
+    }
+
+
+
+
 
 //    public void showNotification() {
 //         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);

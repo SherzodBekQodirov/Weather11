@@ -73,4 +73,7 @@ public class MyFragmentPagerAdapter extends FragmentStatePagerAdapter {
     public List<String> getCityList() {
         return cityList;
     }
+    public List<String> setCityList() {
+        return cityList;
+    }
 }

@@ -7,15 +7,33 @@ import java.io.Serializable;
  */
 
 public class City implements Serializable {
-    private Long dt;
+    private Long id;
     private String name;
+    private Coord coord;
+    private Long population;
+
+    public Long getPopulation() {
+        return population;
+    }
+
+    public void setPopulation(Long population) {
+        this.population = population;
+    }
+
+    public Coord getCoord() {
+        return coord;
+    }
+
+    public void setCoord(Coord coord) {
+        this.coord = coord;
+    }
 
     public Long getDt() {
-        return dt;
+        return id;
     }
 
     public void setDt(Long dt) {
-        this.dt = dt;
+        this.id = dt;
     }
 
     public String getName() {
@@ -29,8 +47,10 @@ public class City implements Serializable {
     @Override
     public String toString() {
         return "City{" +
-                "dt=" + dt +
+                "id=" + id +
                 ", name='" + name + '\'' +
+                ", coord=" + coord +
+                ", population=" + population +
                 '}';
     }
 }
