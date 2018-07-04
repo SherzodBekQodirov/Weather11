@@ -1,4 +1,4 @@
-package ru.startandroid.weather.response;
+package ru.startandroid.weather.data.response;
 
 import java.io.Serializable;
 

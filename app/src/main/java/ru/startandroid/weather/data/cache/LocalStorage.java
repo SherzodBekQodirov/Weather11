@@ -1,4 +1,4 @@
-package ru.startandroid.weather.ui;
+package ru.startandroid.weather.data.cache;
 
 import android.content.Context;
 import android.content.SharedPreferences;

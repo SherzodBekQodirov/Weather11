@@ -1,16 +1,11 @@
-package ru.startandroid.weather.ui;
+package ru.startandroid.weather.ui.main;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,23 +15,23 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import java.util.List;
-
 import ru.startandroid.weather.R;
 import ru.startandroid.weather.data.CityFetcher;
-import ru.startandroid.weather.data.ResponseApi;
+import ru.startandroid.weather.data.response.ResponseApi;
 import ru.startandroid.weather.data.ResponseListener;
-import ru.startandroid.weather.response.MainParent;
-import ru.startandroid.weather.response.Weather;
+import ru.startandroid.weather.data.response.MainParent;
+import ru.startandroid.weather.data.response.Weather;
+import ru.startandroid.weather.ui.NotifyModel;
 
 /**
  * Created by sher on 5/13/18.
  */
 public class WeatherFragment extends Fragment {
+
     private static final String EXTRA_CITY_NAME = "city_name";
     private CityFetcher mCityFetcher = CityFetcher.getInstance();
     private String cityName;
@@ -48,6 +43,8 @@ public class WeatherFragment extends Fragment {
     String nameCity;
     String main;
     public static final int NOTIFICATION_ID = 1;
+    private ResponseApi data;
+    String dateTime;
 
 
     static WeatherFragment newInstance(String cityName) {
@@ -101,11 +98,14 @@ public class WeatherFragment extends Fragment {
         fetchData();
     }
 
-    private void fetchData() {
+    private void fetchData() { // material design date pickerni ishlatdingizmi? yuq. qaysi joydan chiqadi? menudanmi?ha menuda calendar borku
         mCityFetcher.fetchCity(cityName, new ResponseListener() {
             @Override
             public void success(final ResponseApi api) {
-                updateInformation(api);
+                data = api;
+                Log.d("fetchData", "success "+data);
+                storeMainParents();
+                updateInformation();
             }
 
             @Override
@@ -115,8 +115,21 @@ public class WeatherFragment extends Fragment {
         });
     }
 
-    private void updateInformation(ResponseApi data) {
+    private void storeNotifyModel() {
+        NotifyModel nm = new NotifyModel();
+        nm.setCityName(cityName);
+        nm.setMain(main);
+        nm.setTemperature(temps);
+        nm.setIcon(mBitmap);
+        ((MainActivity)getActivity()).setNotifyModel(nm);
+    }
+
+    private void updateInformation() {
         final MainParent temp = data.getList().get(0);
+        Long unixDateTime =  temp.getDt();
+        Log.d("unix", temp.getDt().toString());
+//        dateTime = new java.text.SimpleDateFormat("yyyy:mm:dd").format(new Date(unixDateTime));
+//        Log.d("unix", dateTime);
         List<Weather> weatherList = temp.getWeatherList();
         int humidity = temp.getMain().getHumidity();
         double speed = temp.getWind().getSpeed();
@@ -133,6 +146,7 @@ public class WeatherFragment extends Fragment {
         temps = (tempk - 273);
         main = weatherList.get(0).getMain();
         String icon = weatherList.get(0).getIcon();
+
         String imageUrl = "http://openweathermap.org/img/w/" + icon + ".png";
 
         Bundle bundleArgs = new Bundle();
@@ -158,47 +172,13 @@ public class WeatherFragment extends Fragment {
     }
 
 
-    public void showNotification() {
-        if (getActivity() instanceof MainActivity) {
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(getActivity());
-            builder.setSmallIcon(R.drawable.sunnywhite);
-            builder.setAutoCancel(true);
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder.setLargeIcon(mBitmap);
-                builder.setColor(getResources().getColor(R.color.color0));
-            } else {
-                builder.setSmallIcon(R.drawable.ic_launcher_round);
-            }
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder.setLargeIcon(mBitmap);
-                builder.setColor(getResources().getColor(R.color.color0));
-            } else {
-                builder.setSmallIcon(R.drawable.ic_launcher_round);
-            }
-            builder.setContentTitle(nameCity);
-            builder.setContentText(main);
-            builder.setSubText("SubText");
-            builder.setStyle(new NotificationCompat.BigTextStyle()
-                    .bigText(temps + "°"));
-            builder.setStyle(new NotificationCompat.BigTextStyle()
-                    .bigText(temps + "°"));
-
-            NotificationManager notificationManager = (NotificationManager) getActivity().getSystemService(
-                    Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(NOTIFICATION_ID, builder.build());
-            if (notificationManager != null)
-                notificationManager.notify(NOTIFICATION_ID, builder.build());
-        }
-    }
-
     private Bitmap mBitmap;
 
     Target target = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            Log.d("onBitmapLoaded", "bla bla");
             mBitmap = bitmap;
-            showNotification();
+            storeNotifyModel();
         }
 
         @Override
@@ -209,8 +189,14 @@ public class WeatherFragment extends Fragment {
         public void onPrepareLoad(Drawable placeHolderDrawable) {
         }
     };
-   
 
+    public List<MainParent> getMainParents(){
+        return data.getList();
+    }
+
+    private void storeMainParents(){
+        ((MainActivity)getActivity()).setMainParents(data.getList());
+    }
 }
 
 

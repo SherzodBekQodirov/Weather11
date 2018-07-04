@@ -1,10 +1,10 @@
-package ru.startandroid.weather.data;
+package ru.startandroid.weather.data.response;
 
 import java.io.Serializable;
 import java.util.List;
 
-import ru.startandroid.weather.response.City;
-import ru.startandroid.weather.response.MainParent;
+import ru.startandroid.weather.data.response.City;
+import ru.startandroid.weather.data.response.MainParent;
 
 public class ResponseApi implements Serializable {
     private List<MainParent> list;

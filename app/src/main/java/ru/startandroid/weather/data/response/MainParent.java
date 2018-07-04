@@ -1,6 +1,9 @@
-package ru.startandroid.weather.response;
+package ru.startandroid.weather.data.response;
+
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 public class MainParent implements Serializable {
@@ -8,7 +11,8 @@ public class MainParent implements Serializable {
     private Main main;
     private Wind wind;
     private List<Weather> weather;
-    private String dt_txt;
+    @SerializedName("dt_txt")
+    private Date date;
 
     public List<Weather> getWeatherList() {
         return weather;
@@ -22,12 +26,12 @@ public class MainParent implements Serializable {
         this.wind = wind;
     }
 
-    public String getDt_txt() {
-        return dt_txt;
+    public Date getDate() {
+        return date;
     }
 
-    public void setDt_txt(String dt_txt) {
-        this.dt_txt = dt_txt;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public void setWeatherList(List<Weather> weatherList) {
@@ -56,7 +60,7 @@ public class MainParent implements Serializable {
                 ", main=" + main +
                 ", wind=" + wind +
                 ", weather=" + weather +
-                ", dt_txt='" + dt_txt + '\'' +
+                ", dt_txt='" + date + '\'' +
                 '}';
     }
 }

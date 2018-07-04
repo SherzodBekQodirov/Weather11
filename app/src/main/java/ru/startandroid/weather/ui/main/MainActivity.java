@@ -1,15 +1,18 @@
-package ru.startandroid.weather.ui;
+package ru.startandroid.weather.ui.main;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -18,11 +21,21 @@ import com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListen
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import ru.startandroid.weather.R;
-import ru.startandroid.weather.data.CityFetcher;
+import ru.startandroid.weather.data.response.MainParent;
+import ru.startandroid.weather.ui.AboutActivity;
+import ru.startandroid.weather.ui.ChangeOrAddCity;
+import ru.startandroid.weather.data.cache.LocalStorage;
+import ru.startandroid.weather.ui.NotifyModel;
+import ru.startandroid.weather.ui.base.BaseActivity;
+import ru.startandroid.weather.ui.detail.WeatherDetailsActivity;
+import ru.startandroid.weather.util.DateUtils;
 
-public class MainActivity extends AppCompatActivity {
+import static ru.startandroid.weather.ui.main.WeatherFragment.NOTIFICATION_ID;
+
+public class MainActivity extends BaseActivity {
 
     public static final int CITY_REQUEST_CODE = 705;
 
@@ -33,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
     private LocalStorage localStorage;
     boolean isChange;
     int index;
+    private NotifyModel notifyModel;
+    private List<MainParent> mainParents;
+//    private boolean isChecked = false; man hozir kelaman.ok
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+//        MenuItem checkable = menu.findItem(R.id.switchof);
+//        checkable.setChecked(isChecked);
         return true;
     }
 
@@ -69,6 +87,16 @@ public class MainActivity extends AppCompatActivity {
                 Intent intent = new Intent(this, ChangeOrAddCity.class);
                 this.startActivityForResult(intent, MainActivity.CITY_REQUEST_CODE);
                 return true;
+            case R.id.exit:
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(1);
+
+                return true;
+//            case R.id.switchof:
+//                isChecked = !item.isChecked();
+//                item.setChecked(isChecked);
+//                return false;
+
             case R.id.action_delete:
                 showDeleteDialog();
                 return true;
@@ -77,21 +105,27 @@ public class MainActivity extends AppCompatActivity {
                 this.startActivityForResult(intent1, MainActivity.CITY_REQUEST_CODE);
                 return true;
             case R.id.action_calendar:
-                Calendar now = Calendar.getInstance();
+                final Calendar now = Calendar.getInstance();
                 DatePickerDialog dpd = DatePickerDialog.newInstance(
                         new OnDateSetListener() {
                             @Override
                             public void onDateSet(final DatePickerDialog view, final int year, final int monthOfYear,
                                     final int dayOfMonth) {
-                                final CityFetcher instance = CityFetcher.getInstance();
-                                // TODO Sherxon shu yerda datani bervoringda shu data buyicha hamma datani yangilasin
-                                // instance.setDate();
-                                pagerAdapter.notifyDataSetChanged();
+                                Calendar selected = Calendar.getInstance();
+                                selected.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                                selected.set(Calendar.MONTH, monthOfYear);
+                                selected.set(Calendar.YEAR, year);
+
+                                // todo shu joyda sort qilish kerak, date buyicha
+                                List<MainParent> list = sortedWeather(selected.getTime());
+                                startActivity(WeatherDetailsActivity.getIntent(MainActivity.this, list));
+
                             }
                         },
                         now.get(Calendar.YEAR),
                         now.get(Calendar.MONTH),
                         now.get(Calendar.DAY_OF_MONTH)
+
                 );
                 dpd.show(getFragmentManager(), "Datepickerdialog");
                 break;
@@ -99,9 +133,32 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
+        showNotification();
         super.onDestroy();
+        Log.d("MainActivity","onDestroy() ");
+
+        storeCities();
+    }
+
+
+    private List<MainParent> sortedWeather(Date date){
+        List<MainParent> sortedWeathers = new ArrayList<>();
+        for(MainParent mp: mainParents){
+            if(DateUtils.isTheSameDay(mp.getDate(), date)){
+                sortedWeathers.add(mp);
+            }
+        }
+        return sortedWeathers;
+    }
+
+    public void setNotifyModel(NotifyModel nm){
+        notifyModel = nm;
+    }
+
+    private void storeCities() {
         List<String> cityList = pagerAdapter.getCityList();
         localStorage.saveCityList(cityList);
     }
@@ -136,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         adb.create().show();
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (data == null) {
@@ -158,38 +216,37 @@ public class MainActivity extends AppCompatActivity {
         this.isChange = isChange;
     }
 
+    public void setMainParents(List<MainParent> list){
+        mainParents = list;
+    }
+    public void showNotification() {
+        Log.d("MainActivity", "bitmap"+ notifyModel.getIcon());
+         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            builder.setSmallIcon(R.drawable.sunnywhite);
+            builder.setAutoCancel(true);
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                builder.setLargeIcon(notifyModel.getIcon());
+                builder.setColor(getResources().getColor(R.color.color0));
+            } else {
+                builder.setSmallIcon(R.drawable.ic_launcher_round);
+            }
+            builder.setContentTitle(notifyModel.getCityName());
+            builder.setContentText(notifyModel.getMain());
+            builder.setSubText("");
+            builder.setStyle(new NotificationCompat.BigTextStyle()
+                    .bigText(notifyModel.getTemperature() + "°"));
 
+            Intent targetIntent = new Intent(this, MainActivity.class);
+            targetIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent contentIntent = PendingIntent
+                    .getActivity(this, 0, targetIntent, PendingIntent.FLAG_ONE_SHOT);
+            builder.setContentIntent(contentIntent);
 
-
-
-//    public void showNotification() {
-//         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-//            builder.setSmallIcon(R.drawable.sunnywhite);
-//            builder.setAutoCancel(true);
-//            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                builder.setLargeIcon(mBitmap);
-//                builder.setColor(getResources().getColor(R.color.color0));
-//            } else {
-//                builder.setSmallIcon(R.drawable.ic_launcher_round);
-//            }
-//            builder.setContentTitle(nameCity);
-//            builder.setContentText(main);
-//            builder.setSubText("");
-//            builder.setStyle(new NotificationCompat.BigTextStyle()
-//                    .bigText(temps + "°"));
-//
-//            Intent targetIntent = new Intent(getContext(), MainActivity.class);
-//            targetIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-//            PendingIntent contentIntent = PendingIntent
-//                    .getActivity(getContext(), 0, targetIntent, PendingIntent.FLAG_ONE_SHOT);
-//            builder.setContentIntent(contentIntent);
-//
-//            NotificationManager notificationManager = (NotificationManager) this.getSystemService(
-//                    NOTIFICATION_SERVICE);
-//            if (notificationManager != null)
-//                notificationManager.notify(NOTIFICATION_ID, builder.build());
-//        }
-//    }
+            NotificationManager notificationManager = (NotificationManager) this.getSystemService(
+                    NOTIFICATION_SERVICE);
+            if (notificationManager != null)
+                notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
 }
 
 

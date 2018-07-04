@@ -10,7 +10,7 @@ import android.widget.SearchView;
 import android.widget.Toast;
 import ru.startandroid.weather.R;
 import ru.startandroid.weather.data.CityFetcher;
-import ru.startandroid.weather.data.ResponseApi;
+import ru.startandroid.weather.data.response.ResponseApi;
 import ru.startandroid.weather.data.ResponseListener;
 
 public class ChangeOrAddCity extends Activity {

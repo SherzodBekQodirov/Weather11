@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.main.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -22,7 +22,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.ChangeOrAddCity" />
-        <activity android:name=".ui.AboutActivity"></activity>
+        <activity android:name=".ui.AboutActivity" />
+        <activity android:name=".ui.detail.WeatherDetailsActivity"></activity>
     </application>
 
 </manifest>
