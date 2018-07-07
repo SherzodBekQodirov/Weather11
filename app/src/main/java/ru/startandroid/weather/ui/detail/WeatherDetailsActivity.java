@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,10 +20,12 @@ public class WeatherDetailsActivity extends BaseActivity {
     private static final String EXTRA_MAIN_PARENTS = " extra main parents";
 
     RecyclerView mRecyclerView;
+    List<MainParent> list;
 
     public static Intent getIntent(Activity a, List<MainParent> list){
-        Intent i  = new Intent(a, WeatherDetailsActivity.class);
-        i.putExtra(EXTRA_MAIN_PARENTS, (Serializable) list);
+            Intent i = new Intent(a, WeatherDetailsActivity.class);
+
+            i.putExtra(EXTRA_MAIN_PARENTS, (Serializable) list);
         return i;
     }
 
@@ -38,8 +41,8 @@ public class WeatherDetailsActivity extends BaseActivity {
         WeatherDetailsAdapter adapter = new WeatherDetailsAdapter(this);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(adapter);
-        List<MainParent> list = (List<MainParent>) getIntent().getSerializableExtra(EXTRA_MAIN_PARENTS);
-        Log.d("WeatherDetailsActivity", "mainParents "+list);
-        adapter.accept(list);
+        list = (List<MainParent>) getIntent().getSerializableExtra(EXTRA_MAIN_PARENTS);
+        Log.d("WeatherDetailsActivity", "mainParents " + list);
+            adapter.accept(list);
     }
 }

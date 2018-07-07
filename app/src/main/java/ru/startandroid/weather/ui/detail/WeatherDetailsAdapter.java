@@ -1,10 +1,12 @@
 package ru.startandroid.weather.ui.detail;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ public class WeatherDetailsAdapter extends RecyclerView.Adapter<WeatherDetailsVi
 
     private final Context mContext;
     private List<MainParent> list = new ArrayList<>();
+    View view;
 
     public WeatherDetailsAdapter(Context context) {
         this.mContext = context;
@@ -28,8 +31,10 @@ public class WeatherDetailsAdapter extends RecyclerView.Adapter<WeatherDetailsVi
 
     @Override
     public WeatherDetailsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item_weather_details, parent, false);
-        return new WeatherDetailsViewHolder(view);
+            view = LayoutInflater.from(mContext).inflate(R.layout.item_weather_details, parent, false);
+
+            return new WeatherDetailsViewHolder(view);
+
     }
 
     @Override

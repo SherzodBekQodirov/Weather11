@@ -24,12 +24,11 @@ public class CityFetcher {
     private final static CityFetcher INSTANCE = new CityFetcher();
 
     private CityFetcher() {
-        //Gson gson = new GsonBuilder().create();
-        Gson gson1 = new GsonBuilder()
+        Gson gson = new GsonBuilder()
                 .setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-        Log.d("Gson", String.valueOf(gson1));
+        Log.d("Gson", String.valueOf(gson));
         Retrofit retrofit = new Retrofit.Builder()
-                .addConverterFactory(GsonConverterFactory.create(gson1))
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .baseUrl(BASE_URL + DEFAULT_VERSION + "/")
                 .build();
         linkService = retrofit.create(LinkService.class);

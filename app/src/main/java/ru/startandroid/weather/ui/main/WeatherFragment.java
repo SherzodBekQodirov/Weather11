@@ -44,8 +44,6 @@ public class WeatherFragment extends Fragment {
     String main;
     public static final int NOTIFICATION_ID = 1;
     private ResponseApi data;
-    String dateTime;
-
 
     static WeatherFragment newInstance(String cityName) {
         WeatherFragment pageFragment = new WeatherFragment();
@@ -98,19 +96,20 @@ public class WeatherFragment extends Fragment {
         fetchData();
     }
 
-    private void fetchData() { // material design date pickerni ishlatdingizmi? yuq. qaysi joydan chiqadi? menudanmi?ha menuda calendar borku
+    private void fetchData() {
         mCityFetcher.fetchCity(cityName, new ResponseListener() {
             @Override
             public void success(final ResponseApi api) {
-                data = api;
-                Log.d("fetchData", "success "+data);
-                storeMainParents();
-                updateInformation();
+                   data = api;
+                   Log.d("fetchData", "success " + data);
+                   storeMainParents();
+                   updateInformation();
+
             }
 
             @Override
             public void error(final Exception e) {
-                Toast.makeText(getContext(), "City name is invalide", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Network error or City name is invalide", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -128,8 +127,6 @@ public class WeatherFragment extends Fragment {
         final MainParent temp = data.getList().get(0);
         Long unixDateTime =  temp.getDt();
         Log.d("unix", temp.getDt().toString());
-//        dateTime = new java.text.SimpleDateFormat("yyyy:mm:dd").format(new Date(unixDateTime));
-//        Log.d("unix", dateTime);
         List<Weather> weatherList = temp.getWeatherList();
         int humidity = temp.getMain().getHumidity();
         double speed = temp.getWind().getSpeed();

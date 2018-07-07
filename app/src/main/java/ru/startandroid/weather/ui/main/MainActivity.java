@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
@@ -18,7 +20,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -42,13 +43,11 @@ public class MainActivity extends BaseActivity {
     private ViewPager viewPager;
 
     private MyFragmentPagerAdapter pagerAdapter;
-
     private LocalStorage localStorage;
     boolean isChange;
     int index;
     private NotifyModel notifyModel;
     private List<MainParent> mainParents;
-//    private boolean isChecked = false; man hozir kelaman.ok
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,8 +68,6 @@ public class MainActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-//        MenuItem checkable = menu.findItem(R.id.switchof);
-//        checkable.setChecked(isChecked);
         return true;
     }
 
@@ -90,13 +87,7 @@ public class MainActivity extends BaseActivity {
             case R.id.exit:
                 android.os.Process.killProcess(android.os.Process.myPid());
                 System.exit(1);
-
                 return true;
-//            case R.id.switchof:
-//                isChecked = !item.isChecked();
-//                item.setChecked(isChecked);
-//                return false;
-
             case R.id.action_delete:
                 showDeleteDialog();
                 return true;
@@ -105,30 +96,35 @@ public class MainActivity extends BaseActivity {
                 this.startActivityForResult(intent1, MainActivity.CITY_REQUEST_CODE);
                 return true;
             case R.id.action_calendar:
-                final Calendar now = Calendar.getInstance();
-                DatePickerDialog dpd = DatePickerDialog.newInstance(
-                        new OnDateSetListener() {
-                            @Override
-                            public void onDateSet(final DatePickerDialog view, final int year, final int monthOfYear,
-                                    final int dayOfMonth) {
-                                Calendar selected = Calendar.getInstance();
-                                selected.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                                selected.set(Calendar.MONTH, monthOfYear);
-                                selected.set(Calendar.YEAR, year);
+                    final Calendar now = Calendar.getInstance();
+                    DatePickerDialog dpd = DatePickerDialog.newInstance(
+                            new OnDateSetListener() {
+                                @Override
+                                public void onDateSet(final DatePickerDialog view, final int year, final int monthOfYear,
+                                                      final int dayOfMonth) {
+                                    Calendar selected = Calendar.getInstance();
+                                    selected.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                                    selected.set(Calendar.MONTH, monthOfYear);
+                                    selected.set(Calendar.YEAR, year);
 
-                                // todo shu joyda sort qilish kerak, date buyicha
-                                List<MainParent> list = sortedWeather(selected.getTime());
-                                startActivity(WeatherDetailsActivity.getIntent(MainActivity.this, list));
+                                    List<MainParent> list = sortedWeather(selected.getTime());
+                                    if (!list.isEmpty()) {
+                                        startActivity(WeatherDetailsActivity.getIntent(MainActivity.this, list));
+                                    }else {
+                                        Toast.makeText(getApplicationContext(), "We have only 5 days information", Toast.LENGTH_SHORT).show();
+                                    }
 
-                            }
-                        },
-                        now.get(Calendar.YEAR),
-                        now.get(Calendar.MONTH),
-                        now.get(Calendar.DAY_OF_MONTH)
+                                }
+                            },
+                            now.get(Calendar.YEAR),
+                            now.get(Calendar.MONTH),
+                            now.get(Calendar.DAY_OF_MONTH)
 
-                );
-                dpd.show(getFragmentManager(), "Datepickerdialog");
-                break;
+                    );
+
+                    dpd.show(getFragmentManager(), "Datepickerdialog");
+                    break;
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -247,6 +243,7 @@ public class MainActivity extends BaseActivity {
             if (notificationManager != null)
                 notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
+
 }
 
 

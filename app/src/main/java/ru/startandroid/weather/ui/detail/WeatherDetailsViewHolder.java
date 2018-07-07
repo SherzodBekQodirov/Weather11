@@ -1,5 +1,6 @@
 package ru.startandroid.weather.ui.detail;
 
+import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,6 +20,7 @@ public class WeatherDetailsViewHolder extends RecyclerView.ViewHolder {
     ImageView imageView;
 
 
+
     public WeatherDetailsViewHolder(View itemView) {
         super(itemView);
         tvMain = (TextView) itemView.findViewById(R.id.main);
@@ -28,11 +30,12 @@ public class WeatherDetailsViewHolder extends RecyclerView.ViewHolder {
 
     }
 
+    @SuppressLint("DefaultLocale")
     public void bind(MainParent parent){
         tvMain.setText(parent.getWeatherList().get(0).main);
         tvTime.setText(DateUtils.getDateTimeString(parent.getDate()));
         int temp = (int)parent.getMain().getTemp() - 273;
-        tvTemp.setText(String.format("%d", temp));
+        tvTemp.setText(String.format(temp+"°C"));
         String icon = parent.getWeatherList().get(0).getIcon();
         String imageUrl = "http://openweathermap.org/img/w/" + icon + ".png";
         Picasso.get().load(imageUrl).into(imageView);

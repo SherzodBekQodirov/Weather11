@@ -2,9 +2,11 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="80dp"
     android:padding="16.0dip"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/colorblue">
+
 
     <TextView
         android:id="@+id/main"
@@ -16,29 +18,33 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-
-        <TextView
-            android:id="@+id/temp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-
         <ImageView
-            android:minWidth="24dp"
-            android:maxWidth="24dp"
-            android:minHeight="24dp"
-            android:maxHeight="24dp"
+            android:minWidth="36dp"
+            android:maxWidth="36dp"
+            android:minHeight="36dp"
+            android:maxHeight="36dp"
             android:id="@+id/iconqwe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
 
         <TextView
+            android:id="@+id/temp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:textSize="@dimen/mdtp_ampm_label_size" />
+
+
+
+
+        <TextView
             android:id="@+id/time"
+            android:textSize="18dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8.0dip"
-            android:textColor="@color/colorPrimary"/>
+            android:textColor="#FFFFFF"/>
     </LinearLayout>
 
 </LinearLayout>

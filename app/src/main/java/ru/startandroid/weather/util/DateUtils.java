@@ -27,6 +27,7 @@ public class DateUtils {
     }
 
     public static String getDateTimeString(Date date) {
-        return new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(date);
+        return new SimpleDateFormat("HH:mm", Locale.getDefault()).format(date);
+//        return new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(date);
     }
 }
