@@ -177,6 +177,7 @@ public class MainActivity extends BaseActivity {
             public void onClick(DialogInterface dialog, int which) {
                 pagerAdapter.removeCity(currentCity);
                 pagerAdapter.notifyDataSetChanged();
+                localStorage.saveCityList(cityList);
                 Toast.makeText(MainActivity.this, String.format("The city %s deleted", currentCity),
                         Toast.LENGTH_SHORT).show();
             }
