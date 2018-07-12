@@ -1,6 +1,7 @@
 package ru.startandroid.weather.ui.main;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
@@ -18,17 +18,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog.OnDateSetListener;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
 import ru.startandroid.weather.R;
+import ru.startandroid.weather.data.cache.LocalStorage;
 import ru.startandroid.weather.data.response.MainParent;
 import ru.startandroid.weather.ui.AboutActivity;
 import ru.startandroid.weather.ui.ChangeOrAddCity;
-import ru.startandroid.weather.data.cache.LocalStorage;
 import ru.startandroid.weather.ui.NotifyModel;
 import ru.startandroid.weather.ui.base.BaseActivity;
 import ru.startandroid.weather.ui.detail.WeatherDetailsActivity;
@@ -48,26 +51,44 @@ public class MainActivity extends BaseActivity {
     int index;
     private NotifyModel notifyModel;
     private List<MainParent> mainParents;
+    List<String> strings;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        localStorage = new LocalStorage(this);
 
-        viewPager = (ViewPager) findViewById(R.id.pager);
-        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(pagerAdapter);
 
-        final List<String> strings = localStorage.readStoredCities();
-        for (String city : strings) {
-            pagerAdapter.addCity(city);
+            localStorage = new LocalStorage(this);
+            viewPager = (ViewPager) findViewById(R.id.pager);
+            pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
+            viewPager.setAdapter(pagerAdapter);
+            strings = localStorage.readStoredCities();
+            if (strings.isEmpty()){
+                helloDialog();
+            }
+            for (String city : strings) {
+                pagerAdapter.addCity(city);
+            }
+            pagerAdapter.notifyDataSetChanged();
         }
-        pagerAdapter.notifyDataSetChanged();
-    }
+
+
+
 
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (pagerAdapter.getCityList().isEmpty()) {
+            menu.findItem(R.id.changecity).setEnabled(false);
+        } else {
+            menu.findItem(R.id.changecity).setEnabled(true);
+        }
         return true;
     }
 
@@ -96,34 +117,34 @@ public class MainActivity extends BaseActivity {
                 this.startActivityForResult(intent1, MainActivity.CITY_REQUEST_CODE);
                 return true;
             case R.id.action_calendar:
-                    final Calendar now = Calendar.getInstance();
-                    DatePickerDialog dpd = DatePickerDialog.newInstance(
-                            new OnDateSetListener() {
-                                @Override
-                                public void onDateSet(final DatePickerDialog view, final int year, final int monthOfYear,
-                                                      final int dayOfMonth) {
-                                    Calendar selected = Calendar.getInstance();
-                                    selected.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                                    selected.set(Calendar.MONTH, monthOfYear);
-                                    selected.set(Calendar.YEAR, year);
+                final Calendar now = Calendar.getInstance();
+                DatePickerDialog dpd = DatePickerDialog.newInstance(
+                        new OnDateSetListener() {
+                            @Override
+                            public void onDateSet(final DatePickerDialog view, final int year, final int monthOfYear,
+                                                  final int dayOfMonth) {
+                                Calendar selected = Calendar.getInstance();
+                                selected.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                                selected.set(Calendar.MONTH, monthOfYear);
+                                selected.set(Calendar.YEAR, year);
 
-                                    List<MainParent> list = sortedWeather(selected.getTime());
-                                    if (!list.isEmpty()) {
-                                        startActivity(WeatherDetailsActivity.getIntent(MainActivity.this, list));
-                                    }else {
-                                        Toast.makeText(getApplicationContext(), "We have only 5 days information", Toast.LENGTH_SHORT).show();
-                                    }
-
+                                List<MainParent> list = sortedWeather(selected.getTime());
+                                if (!list.isEmpty()) {
+                                    startActivity(WeatherDetailsActivity.getIntent(MainActivity.this, list));
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "We have only 5 days information", Toast.LENGTH_SHORT).show();
                                 }
-                            },
-                            now.get(Calendar.YEAR),
-                            now.get(Calendar.MONTH),
-                            now.get(Calendar.DAY_OF_MONTH)
 
-                    );
+                            }
+                        },
+                        now.get(Calendar.YEAR),
+                        now.get(Calendar.MONTH),
+                        now.get(Calendar.DAY_OF_MONTH)
 
-                    dpd.show(getFragmentManager(), "Datepickerdialog");
-                    break;
+                );
+
+                dpd.show(getFragmentManager(), "Datepickerdialog");
+                break;
 
         }
         return super.onOptionsItemSelected(item);
@@ -134,23 +155,22 @@ public class MainActivity extends BaseActivity {
     public void onDestroy() {
         showNotification();
         super.onDestroy();
-        Log.d("MainActivity","onDestroy() ");
+        Log.d("MainActivity", "onDestroy() ");
 
         storeCities();
     }
 
-
-    private List<MainParent> sortedWeather(Date date){
+    private List<MainParent> sortedWeather(Date date) {
         List<MainParent> sortedWeathers = new ArrayList<>();
-        for(MainParent mp: mainParents){
-            if(DateUtils.isTheSameDay(mp.getDate(), date)){
+        for (MainParent mp : mainParents) {
+            if (DateUtils.isTheSameDay(mp.getDate(), date)) {
                 sortedWeathers.add(mp);
             }
         }
         return sortedWeathers;
     }
 
-    public void setNotifyModel(NotifyModel nm){
+    public void setNotifyModel(NotifyModel nm) {
         notifyModel = nm;
     }
 
@@ -167,7 +187,6 @@ public class MainActivity extends BaseActivity {
             return;
         }
         final String currentCity = cityList.get(index);
-
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
         adb.setTitle(R.string.exit);
         adb.setMessage(String.format(getString(R.string.save_data), currentCity));
@@ -177,9 +196,13 @@ public class MainActivity extends BaseActivity {
             public void onClick(DialogInterface dialog, int which) {
                 pagerAdapter.removeCity(currentCity);
                 pagerAdapter.notifyDataSetChanged();
-                localStorage.saveCityList(cityList);
-                Toast.makeText(MainActivity.this, String.format("The city %s deleted", currentCity),
-                        Toast.LENGTH_SHORT).show();
+                if (strings.isEmpty()){
+                    helloDialog();
+                }else {
+                    localStorage.saveCityList(cityList);
+                    Toast.makeText(MainActivity.this, String.format("The city %s deleted", currentCity),
+                            Toast.LENGTH_SHORT).show();
+                }
             }
         });
         adb.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -188,6 +211,22 @@ public class MainActivity extends BaseActivity {
             }
         });
         adb.create().show();
+    }
+    private void helloDialog() {
+        AlertDialog.Builder hdb = new AlertDialog.Builder(this);
+        hdb.setTitle("SEARCH CITY");
+        hdb.setMessage("For select you city click SEARCH CITY button");
+        hdb.setIcon(R.drawable.choose_city);
+        hdb.setCancelable(false);
+        hdb.setPositiveButton("SEARCH CITY", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                setIsChange(false);
+                Intent intent = new Intent(getBaseContext(), ChangeOrAddCity.class);
+                startActivityForResult(intent, MainActivity.CITY_REQUEST_CODE);
+            }
+        });
+        hdb.create().show();
     }
 
 
@@ -201,48 +240,51 @@ public class MainActivity extends BaseActivity {
             if (TextUtils.isEmpty(name)) {
                 return;
             }
-            if(isChange){
+            if (isChange) {
                 pagerAdapter.setCityList().set(viewPager.getCurrentItem(), name);
-            }else{
+            } else {
                 pagerAdapter.addCity(name);
             }
             pagerAdapter.notifyDataSetChanged();
         }
     }
-    public void setIsChange(boolean isChange){
+
+    public void setIsChange(boolean isChange) {
         this.isChange = isChange;
     }
 
-    public void setMainParents(List<MainParent> list){
+
+    public void setMainParents(List<MainParent> list) {
         mainParents = list;
     }
+
     public void showNotification() {
-        Log.d("MainActivity", "bitmap"+ notifyModel.getIcon());
-         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-            builder.setSmallIcon(R.drawable.sunnywhite);
-            builder.setAutoCancel(true);
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                builder.setLargeIcon(notifyModel.getIcon());
-                builder.setColor(getResources().getColor(R.color.color0));
-            } else {
-                builder.setSmallIcon(R.drawable.ic_launcher_round);
-            }
-            builder.setContentTitle(notifyModel.getCityName());
-            builder.setContentText(notifyModel.getMain());
-            builder.setSubText("");
-            builder.setStyle(new NotificationCompat.BigTextStyle()
-                    .bigText(notifyModel.getTemperature() + "°"));
+        Log.d("MainActivity", "bitmap" + notifyModel.getIcon());
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.sunnywhite);
+        builder.setAutoCancel(true);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setLargeIcon(notifyModel.getIcon());
+            builder.setColor(getResources().getColor(R.color.color0));
+        } else {
+            builder.setSmallIcon(R.drawable.ic_launcher_round);
+        }
+        builder.setContentTitle(notifyModel.getCityName());
+        builder.setContentText(notifyModel.getMain());
+        builder.setSubText("");
+        builder.setStyle(new NotificationCompat.BigTextStyle()
+                .bigText(notifyModel.getTemperature() + "°"));
 
-            Intent targetIntent = new Intent(this, MainActivity.class);
-            targetIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent contentIntent = PendingIntent
-                    .getActivity(this, 0, targetIntent, PendingIntent.FLAG_ONE_SHOT);
-            builder.setContentIntent(contentIntent);
+        Intent targetIntent = new Intent(this, MainActivity.class);
+        targetIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent contentIntent = PendingIntent
+                .getActivity(this, 0, targetIntent, PendingIntent.FLAG_ONE_SHOT);
+        builder.setContentIntent(contentIntent);
 
-            NotificationManager notificationManager = (NotificationManager) this.getSystemService(
-                    NOTIFICATION_SERVICE);
-            if (notificationManager != null)
-                notificationManager.notify(NOTIFICATION_ID, builder.build());
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(
+                NOTIFICATION_SERVICE);
+        if (notificationManager != null)
+            notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
 }

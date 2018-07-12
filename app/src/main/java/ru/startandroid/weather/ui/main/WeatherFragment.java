@@ -65,6 +65,22 @@ public class WeatherFragment extends Fragment {
     @Override
     public void onViewCreated(View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
+        initViews(v);
+        setUpdateBtnClickListener();
+    }
+
+    private void setUpdateBtnClickListener() {
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Animation animation = AnimationUtils.loadAnimation(v.getContext(), R.anim.fade_in);
+                imgview.startAnimation(animation);
+                fetchData();
+            }
+        });
+    }
+
+    private void initViews(View v) {
         btn1 = (FloatingActionButton) v.findViewById(R.id.floatingActionButton2);
         textView = (TextView) v.findViewById(R.id.textView);
         textView2 = (TextView) v.findViewById(R.id.textView2);
@@ -79,15 +95,6 @@ public class WeatherFragment extends Fragment {
         pressureView = (TextView) v.findViewById(R.id.pressure);
         geolatView = (TextView) v.findViewById(R.id.geolat);
         geolonView = (TextView) v.findViewById(R.id.geolon);
-
-        btn1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Animation animation = AnimationUtils.loadAnimation(v.getContext(), R.anim.fade_in);
-                imgview.startAnimation(animation);
-                fetchData();
-            }
-        });
     }
 
     @Override
