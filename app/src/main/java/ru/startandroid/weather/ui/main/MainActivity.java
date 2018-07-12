@@ -59,21 +59,19 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
 
-            localStorage = new LocalStorage(this);
-            viewPager = (ViewPager) findViewById(R.id.pager);
-            pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
-            viewPager.setAdapter(pagerAdapter);
-            strings = localStorage.readStoredCities();
-            if (strings.isEmpty()){
-                helloDialog();
-            }
-            for (String city : strings) {
-                pagerAdapter.addCity(city);
-            }
-            pagerAdapter.notifyDataSetChanged();
+        localStorage = new LocalStorage(this);
+        viewPager = (ViewPager) findViewById(R.id.pager);
+        pagerAdapter = new MyFragmentPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(pagerAdapter);
+        strings = localStorage.readStoredCities();
+        if (strings.isEmpty()) {
+            helloDialog();
         }
-
-
+        for (String city : strings) {
+            pagerAdapter.addCity(city);
+        }
+        pagerAdapter.notifyDataSetChanged();
+    }
 
 
     @Override
@@ -196,14 +194,16 @@ public class MainActivity extends BaseActivity {
             public void onClick(DialogInterface dialog, int which) {
                 pagerAdapter.removeCity(currentCity);
                 pagerAdapter.notifyDataSetChanged();
-                if (strings.isEmpty()){
+                localStorage.saveCityList(cityList);
+                if (cityList.size()<=0) {
                     helloDialog();
-                }else {
-                    localStorage.saveCityList(cityList);
+                } else {
+
                     Toast.makeText(MainActivity.this, String.format("The city %s deleted", currentCity),
                             Toast.LENGTH_SHORT).show();
                 }
             }
+
         });
         adb.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
@@ -212,6 +212,7 @@ public class MainActivity extends BaseActivity {
         });
         adb.create().show();
     }
+
     private void helloDialog() {
         AlertDialog.Builder hdb = new AlertDialog.Builder(this);
         hdb.setTitle("SEARCH CITY");
