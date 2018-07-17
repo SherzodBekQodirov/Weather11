@@ -24,7 +24,7 @@
         </activity>
         <activity android:name=".ui.ChangeOrAddCity" />
         <activity android:name=".ui.AboutActivity" />
-        <activity android:name=".ui.detail.WeatherDetailsActivity"></activity>
+        <activity android:name=".ui.detail.WeatherDetailsActivity"/>
     </application>
 
 </manifest>
